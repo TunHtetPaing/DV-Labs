@@ -238,7 +238,7 @@ export default async function Home() {
             </Link>
 
             <Link
-              href="/projects/project-2"
+              href="/projects/project2"
               className="group overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900"
             >
               <div className="aspect-[16/10] overflow-hidden bg-zinc-200 dark:bg-zinc-800">
@@ -282,7 +282,7 @@ export default async function Home() {
             </Link>
 
             <Link
-              href="/projects/project-4"
+              href="/projects/project4"
               className="group overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900"
             >
               <div className="aspect-[16/10] overflow-hidden bg-zinc-200 dark:bg-zinc-800">
@@ -309,7 +309,7 @@ export default async function Home() {
       <footer className="border-t border-zinc-200 py-10 dark:border-zinc-800">
         <div className="container mx-auto max-w-5xl px-4 flex flex-col items-center justify-between gap-4 sm:flex-row">
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            © {new Date().getFullYear()} Folio. All rights reserved.
+            © {new Date().getFullYear()} DV Labs. All rights reserved.
           </p>
           <div className="flex gap-6">
             <Link
