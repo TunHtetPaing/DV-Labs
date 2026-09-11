@@ -26,6 +26,9 @@ type CommentRow = {
 
 const PROJECT_PATHS: Record<string, string> = {
   project1: "/projects/project1",
+  project2: "/projects/project2",
+  project3: "/projects/project3",
+  project4: "/projects/project4",
 };
 
 export async function getProjectComments(

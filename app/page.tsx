@@ -2,6 +2,105 @@ import Link from "next/link";
 import { logout } from "@/app/auth/actions";
 import { createClient } from "@/lib/supabase/server";
 
+// ============================================================================
+// TYPES & DATA STRUCTURES
+// Extract these to separate data files (e.g., @/data/projects.ts) as the studio grows.
+// ============================================================================
+
+interface Project {
+  id: string;
+  title: string;
+  client: string;
+  category: "product" | "commercial" | "interior" | "motion";
+  tags: string[];
+  thumbnailImg: string;
+  previewVideo: string;
+  href: string;
+}
+
+const FEATURED_PROJECTS: Project[] = [
+  {
+    id: "project1",
+    title: "Product Visualization",
+    client: "ASUS Zenbook 14 Pro OLED",
+    category: "product",
+    tags: ["Product Viz", "Octane Render", "Lookdev"],
+    thumbnailImg: "/assets/project1/project1.jpg",
+    previewVideo: "/assets/project_videos/v1.mp4", // Replace with actual project preview video
+    href: "/projects/project1",
+  },
+  {
+    id: "project2",
+    title: "Beverage Commercial",
+    client: "Coca-Cola Refresh",
+    category: "commercial",
+    tags: ["CGI Commercial", "Houdini FX", "Fluid Sim"],
+    thumbnailImg: "/assets/project2/project2.jpg",
+    previewVideo: "/assets/project_videos/v2.mp4",
+    href: "/projects/project2",
+  },
+  {
+    id: "project3",
+    title: "Minimalist Workspace",
+    client: "Home Office Architectural Concept",
+    category: "interior",
+    tags: ["Interior Design", "Lighting", "Unreal Engine"],
+    thumbnailImg: "/assets/project3/project3.jpg",
+    previewVideo: "/assets/project_videos/v3.mp4",
+    href: "/projects/project3",
+  },
+  {
+    id: "project4",
+    title: "Modern Sanctuary",
+    client: "Bedroom Visual Identity",
+    category: "interior",
+    tags: ["Interior Design", "ArchViz", "Substance Painter"],
+    thumbnailImg: "/assets/project4/project4.jpg",
+    previewVideo: "/assets/project_videos/v4.mp4",
+    href: "/projects/project4",
+  },
+];
+
+const STUDIO_CAPABILITIES = [
+  {
+    number: "01",
+    title: "3D Product Visualization",
+    description:
+      "High-precision CGI renders and hyper-realistic product showcases for hardware, luxury goods, and tech devices.",
+  },
+  {
+    number: "02",
+    title: "CGI Commercials & Motion",
+    description:
+      "Dynamic visual effects, liquid simulations, and broadcast-ready brand films built for digital platforms.",
+  },
+  {
+    number: "03",
+    title: "Look Development & R&D",
+    description:
+      "Custom procedural materials, lighting systems, and cinematic aesthetic direction for ambitious campaigns.",
+  },
+  {
+    number: "04",
+    title: "Real-Time & Interactive 3D",
+    description:
+      "Interactive 3D web experiences, Unreal Engine environments, and immersive VR setups.",
+  },
+];
+
+const CLIENT_LOGOS = [
+  "ASUS",
+  "COCA-COLA",
+  "NVIDIA",
+  "SAMSUNG",
+  "LOGITECH",
+  "SONY",
+];
+
+// ============================================================================
+// MAIN PAGE COMPONENT
+// ============================================================================
+
 export default async function Home() {
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
@@ -31,28 +130,50 @@ export default async function Home() {
     (email ? email.split("@")[0] : null);
 
   return (
-    <div className="min-h-screen flex flex-col bg-white dark:bg-zinc-950 text-zinc-950 dark:text-zinc-50">
-      {/* Navbar */}
-      <header className="sticky top-0 z-50 w-full border-b border-zinc-200 bg-white/80 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/80">
-        <div className="flex h-16 w-full items-center justify-between px-6">
-          <Link href="/" className="text-lg font-bold tracking-tight">
-            DV Labs
+    <div className="min-h-screen flex flex-col bg-zinc-950 text-zinc-50 selection:bg-white selection:text-zinc-950">
+      {/* 
+        ------------------------------------------------------------------------
+        1. NAVIGATION HEADER
+        ------------------------------------------------------------------------
+      */}
+      <header className="sticky top-0 z-50 w-full border-b border-zinc-800/80 bg-zinc-950/80 backdrop-blur-md">
+        <div className="flex h-16 w-full items-center justify-between px-6 max-w-7xl mx-auto">
+          <Link href="/" className="flex items-center gap-2 group">
+            <span className="text-xl font-black tracking-wider uppercase bg-gradient-to-r from-white via-zinc-200 to-zinc-500 bg-clip-text text-transparent">
+              DV Labs
+            </span>
+            <span className="rounded bg-zinc-800 px-1.5 py-0.5 text-[10px] font-semibold text-zinc-400 tracking-wide">
+              3D STUDIO
+            </span>
           </Link>
-          <nav className="flex items-center gap-4">
-            {/*  <Link
-              href="#projects"
-              className="text-sm font-medium text-zinc-600 transition-colors hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-50 hidden sm:block"
+
+          <nav className="flex items-center gap-6">
+            <Link
+              href="#work"
+              className="text-xs font-semibold uppercase tracking-widest text-zinc-400 transition-colors hover:text-white hidden sm:block"
             >
-              Our Projects
-            </Link> */}
+              Work
+            </Link>
+            <Link
+              href="#capabilities"
+              className="text-xs font-semibold uppercase tracking-widest text-zinc-400 transition-colors hover:text-white hidden sm:block"
+            >
+              Services
+            </Link>
+            <Link
+              href="#contact"
+              className="text-xs font-semibold uppercase tracking-widest text-zinc-400 transition-colors hover:text-white hidden sm:block"
+            >
+              Contact
+            </Link>
 
-            <div className="h-4 w-px bg-zinc-200 dark:bg-zinc-800 hidden sm:block"></div>
+            <div className="h-4 w-px bg-zinc-800 hidden sm:block"></div>
 
+            {/* Client Portal / Auth Navigation */}
             {email ? (
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
-                  {/* Profile Icon SVG */}
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-zinc-800 border border-zinc-700">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 24 24"
@@ -61,20 +182,20 @@ export default async function Home() {
                       strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      className="h-4 w-4 text-zinc-600 dark:text-zinc-400"
+                      className="h-3.5 w-3.5 text-zinc-300"
                     >
                       <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
                       <circle cx="12" cy="7" r="4" />
                     </svg>
                   </div>
-                  <span className="hidden text-sm font-medium sm:block">
+                  <span className="hidden text-xs font-medium text-zinc-300 sm:block">
                     {displayName}
                   </span>
                 </div>
                 <form action={logout}>
                   <button
                     type="submit"
-                    className="h-9 rounded-md border border-zinc-200 px-4 text-sm font-medium text-zinc-950 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:text-zinc-50 dark:hover:bg-zinc-900"
+                    className="h-8 rounded border border-zinc-800 px-3 text-xs font-medium text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-white"
                   >
                     Log out
                   </button>
@@ -84,15 +205,15 @@ export default async function Home() {
               <div className="flex items-center gap-3">
                 <Link
                   href="/login"
-                  className="text-sm font-medium text-zinc-600 transition-colors hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-50"
+                  className="text-xs font-semibold uppercase tracking-widest text-zinc-400 transition-colors hover:text-white"
                 >
-                  Log in
+                  Portal
                 </Link>
                 <Link
-                  href="/signup"
-                  className="inline-flex h-9 items-center rounded-md bg-zinc-950 px-4 text-sm font-medium text-white transition-colors hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-950 dark:hover:bg-zinc-200"
+                  href="#contact"
+                  className="inline-flex h-8 items-center rounded bg-white px-3.5 text-xs font-semibold text-zinc-950 transition-transform hover:scale-105"
                 >
-                  Sign up
+                  Start Project
                 </Link>
               </div>
             )}
@@ -101,45 +222,43 @@ export default async function Home() {
       </header>
 
       <main className="flex-1">
-        {/* Hero Section with 2-Video Carousel Background */}
-        <section className="relative flex min-h-[85vh] w-full items-center justify-center overflow-hidden py-24 sm:py-32 lg:py-40">
-          {/* Video carousel animations */}
+        {/* 
+          ------------------------------------------------------------------------
+          2. HERO SECTION
+          Cinematic video background with studio positioning copy.
+          ------------------------------------------------------------------------
+        */}
+        <section className="relative flex min-h-[90vh] w-full items-center justify-center overflow-hidden py-24 sm:py-32">
+          {/* Keyframe animation inline styles for dual video crossfade */}
           <style
             dangerouslySetInnerHTML={{
               __html: `
-        @keyframes fade1 {
-          0%, 40% { opacity: 1; }
-          50%, 90% { opacity: 0; }
-          100% { opacity: 1; }
-        }
-
-        @keyframes fade2 {
-          0%, 40% { opacity: 0; }
-          50%, 90% { opacity: 1; }
-          100% { opacity: 0; }
-        }
-
-        .video-carousel-1 {
-          animation: fade1 14s infinite;
-        }
-
-        .video-carousel-2 {
-          animation: fade2 14s infinite;
-        }
-      `,
+                @keyframes fade1 {
+                  0%, 45% { opacity: 1; }
+                  50%, 95% { opacity: 0; }
+                  100% { opacity: 1; }
+                }
+                @keyframes fade2 {
+                  0%, 45% { opacity: 0; }
+                  50%, 95% { opacity: 1; }
+                  100% { opacity: 0; }
+                }
+                .video-carousel-1 { animation: fade1 16s infinite; }
+                .video-carousel-2 { animation: fade2 16s infinite; }
+              `,
             }}
           />
 
-          {/* Video Background */}
+          {/* Background Video Reel Loop */}
           <div className="absolute inset-0 z-0 bg-zinc-950">
             <video
               autoPlay
               loop
               muted
               playsInline
-              className="video-carousel-1 absolute inset-0 h-full w-full object-cover"
+              className="video-carousel-1 absolute inset-0 h-full w-full object-cover scale-105 filter brightness-75"
             >
-              <source src="assets/v_1.mp4" type="video/mp4" />
+              <source src="/assets/v_1.mp4" type="video/mp4" />
             </video>
 
             <video
@@ -147,189 +266,338 @@ export default async function Home() {
               loop
               muted
               playsInline
-              className="video-carousel-2 absolute inset-0 h-full w-full object-cover opacity-0"
+              className="video-carousel-2 absolute inset-0 h-full w-full object-cover opacity-0 scale-105 filter brightness-75"
             >
-              <source src="assets/v_4.mp4" type="video/mp4" />
+              <source src="/assets/v_4.mp4" type="video/mp4" />
             </video>
           </div>
 
-          {/* Dark overlay */}
-          <div className="absolute inset-0 z-10 bg-black/55" />
+          {/* Vignette & Gradients Overlay */}
+          <div className="absolute inset-0 z-10 bg-black/60" />
+          <div className="absolute inset-0 z-10 bg-gradient-to-t from-zinc-950 via-transparent to-black/40" />
 
-          {/* Bottom gradient */}
-          <div className="absolute inset-0 z-10 bg-gradient-to-b from-black/10 via-transparent to-black/70" />
+          {/* Hero Content Overlay */}
+          <div className="relative z-20 container mx-auto flex max-w-5xl flex-col items-center px-6 text-center">
+            {/* Status Indicator */}
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-zinc-700/60 bg-zinc-900/80 px-3.5 py-1 text-xs text-zinc-300 backdrop-blur-md">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              Available for Q3/Q4 Commissions
+            </div>
 
-          {/* Text Overlay */}
-          <div className="relative z-20 container mx-auto flex max-w-5xl flex-col items-center px-4 text-center text-white">
-            <h1 className="text-4xl font-extrabold tracking-tight drop-shadow-sm sm:text-5xl lg:text-7xl">
-              Build your digital presence
-              <br className="hidden sm:block" />
-              with style and speed.
+            {/* Primary Headline */}
+            <h1 className="text-4xl font-black tracking-tight sm:text-6xl lg:text-7xl uppercase leading-[1.05]">
+              Crafting High-Impact <br />
+              <span className="bg-gradient-to-r from-white via-zinc-300 to-zinc-500 bg-clip-text text-transparent">
+                3D Visuals & Motion
+              </span>
             </h1>
 
-            <p className="mt-6 max-w-2xl text-lg text-zinc-200 drop-shadow-sm sm:text-xl">
-              Showcase your best work, connect with clients, and grow your
-              career. Sign up today to create your personalized portfolio and
-              access premium features.
+            {/* Subtitle */}
+            <p className="mt-6 max-w-2xl text-base text-zinc-300 sm:text-lg leading-relaxed">
+              DV Labs is a digital design studio specializing in CGI product
+              visualization, cinematic commercial motion, and high-fidelity 3D
+              brand experiences.
             </p>
 
-            <div className="mt-10 flex items-center gap-4">
+            {/* Call to Actions */}
+            <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
               <Link
-                href="#projects"
-                className="inline-flex h-12 items-center justify-center rounded-lg bg-white px-8 text-sm font-semibold text-zinc-950 transition-all hover:scale-105 hover:bg-zinc-200"
+                href="#work"
+                className="inline-flex h-12 items-center justify-center rounded bg-white px-8 text-xs font-bold uppercase tracking-wider text-zinc-950 transition-all hover:bg-zinc-200 hover:scale-105"
               >
-                View Our Projects
+                Explore Selected Work
               </Link>
 
               <Link
-                href="/signup"
-                className="inline-flex h-12 items-center justify-center rounded-lg border border-white/30 bg-black/30 px-8 text-sm font-semibold text-white backdrop-blur-md transition-all hover:scale-105 hover:bg-white/10"
+                href="#contact"
+                className="inline-flex h-12 items-center justify-center rounded border border-zinc-700 bg-zinc-900/80 px-8 text-xs font-bold uppercase tracking-wider text-white backdrop-blur-md transition-all hover:border-zinc-500 hover:bg-zinc-800 hover:scale-105"
               >
-                Get Started
+                Get In Touch
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* 
+          ------------------------------------------------------------------------
+          3. CLIENT TRUST / BRAND MARQUEE
+          Showcases high-profile clients or agency partners.
+          ------------------------------------------------------------------------
+        */}
+        <section className="border-y border-zinc-800/80 bg-zinc-900/40 py-8 backdrop-blur">
+          <div className="mx-auto max-w-6xl px-6">
+            <p className="text-center text-[11px] font-semibold uppercase tracking-[0.25em] text-zinc-500 mb-6">
+              Collaborated With Leading Brands & Agencies
+            </p>
+            <div className="flex flex-wrap items-center justify-between gap-8 opacity-60 grayscale transition-all hover:grayscale-0">
+              {CLIENT_LOGOS.map((client) => (
+                <span
+                  key={client}
+                  className="text-sm font-black tracking-widest text-zinc-400 hover:text-white transition-colors"
+                >
+                  {client}
+                </span>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* 
+          ------------------------------------------------------------------------
+          4. FEATURED PROJECTS PORTFOLIO
+          Interactive grid with video hover preview functionality.
+          ------------------------------------------------------------------------
+        */}
+        <section id="work" className="w-full py-24 sm:py-32 bg-zinc-950">
+          <div className="mx-auto w-full max-w-6xl px-6">
+            {/* Header with section title */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+              <div>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">
+                  Selected Archives
+                </p>
+                <h2 className="text-3xl font-black uppercase tracking-tight sm:text-5xl">
+                  Featured Work
+                </h2>
+              </div>
+
+              {/* Category Filter Tabs (Front-end trigger setup) */}
+              <div className="flex flex-wrap gap-2 text-xs font-medium text-zinc-400">
+                <button className="rounded-full bg-white px-4 py-1.5 text-zinc-950 font-bold">
+                  All
+                </button>
+                <button className="rounded-full border border-zinc-800 px-4 py-1.5 hover:border-zinc-600 hover:text-white transition-colors">
+                  Product Viz
+                </button>
+                <button className="rounded-full border border-zinc-800 px-4 py-1.5 hover:border-zinc-600 hover:text-white transition-colors">
+                  Commercials
+                </button>
+                <button className="rounded-full border border-zinc-800 px-4 py-1.5 hover:border-zinc-600 hover:text-white transition-colors">
+                  Interior
+                </button>
+              </div>
+            </div>
+
+            {/* Project Cards Grid */}
+            <div className="grid gap-8 sm:grid-cols-2">
+              {FEATURED_PROJECTS.map((project) => (
+                <Link
+                  key={project.id}
+                  href={project.href}
+                  className="group relative flex flex-col overflow-hidden rounded-xl border border-zinc-800/80 bg-zinc-900/50 transition-all duration-300 hover:border-zinc-600 hover:-translate-y-1"
+                >
+                  {/* Media Wrapper with Dual Layer (Image Fallback + Hover Video) */}
+                  <div className="relative aspect-[16/10] w-full overflow-hidden bg-zinc-900">
+                    {/* Default Image Poster */}
+                    <img
+                      src={project.thumbnailImg}
+                      alt={project.title}
+                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105 group-hover:opacity-0"
+                    />
+
+                    {/* Autoplay Video Preview on Card Hover */}
+                    <video
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                    >
+                      <source src={project.previewVideo} type="video/mp4" />
+                    </video>
+
+                    {/* View Case Study Overlay Badge */}
+                    <div className="absolute top-4 right-4 rounded-full bg-black/60 backdrop-blur-md px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                      View Project
+                    </div>
+                  </div>
+
+                  {/* Card Content & Tags */}
+                  <div className="flex flex-1 flex-col justify-between p-6">
+                    <div>
+                      <p className="text-xs font-medium uppercase tracking-wider text-zinc-400">
+                        {project.client}
+                      </p>
+                      <h3 className="mt-1 text-2xl font-bold tracking-tight text-white group-hover:text-zinc-200">
+                        {project.title}
+                      </h3>
+                    </div>
+
+                    {/* Technical Stack / Scope Tags */}
+                    <div className="mt-6 flex flex-wrap gap-2">
+                      {project.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="rounded border border-zinc-800 bg-zinc-950 px-2 py-0.5 text-[10px] font-medium text-zinc-400"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* 
+          ------------------------------------------------------------------------
+          5. CAPABILITIES & SERVICES SECTION
+          Details studio technical offerings and pipeline capabilities.
+          ------------------------------------------------------------------------
+        */}
+        <section
+          id="capabilities"
+          className="w-full border-t border-zinc-800/80 bg-zinc-900/30 py-24 sm:py-32"
+        >
+          <div className="mx-auto max-w-6xl px-6">
+            <div className="mb-16">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">
+                Capabilities
+              </p>
+              <h2 className="text-3xl font-black uppercase tracking-tight sm:text-5xl">
+                What We Do
+              </h2>
+            </div>
+
+            <div className="grid gap-8 sm:grid-cols-2">
+              {STUDIO_CAPABILITIES.map((service) => (
+                <Link
+                  key={service.number}
+                  href="/services"
+                  className="flex flex-col justify-between rounded-xl border border-zinc-800/80 bg-zinc-950 p-8 transition-colors hover:border-zinc-700"
+                >
+                  <div>
+                    <span className="text-xs font-mono font-bold text-zinc-500">
+                      {service.number}
+                    </span>
+                    <h3 className="mt-4 text-xl font-bold tracking-tight text-white">
+                      {service.title}
+                    </h3>
+                    <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+                      {service.description}
+                    </p>
+                  </div>
+                  <div className="mt-8 flex items-center gap-2 text-xs font-semibold text-zinc-300">
+                    <span>Learn More</span>
+                    <svg
+                      className="h-3.5 w-3.5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M17 8l4 4m0 0l-4 4m4-4H3"
+                      />
+                    </svg>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* 
+          ------------------------------------------------------------------------
+          6. CONTACT & COMMISSIONS CALL-TO-ACTION
+          Replaces standard footer CTA with direct client inquiry block.
+          ------------------------------------------------------------------------
+        */}
+        <section
+          id="contact"
+          className="relative overflow-hidden border-t border-zinc-800/80 bg-zinc-950 py-24 sm:py-32"
+        >
+          <div className="mx-auto max-w-4xl px-6 text-center">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 mb-4">
+              Have a Project in Mind?
+            </p>
+            <h2 className="text-4xl font-black uppercase tracking-tight sm:text-6xl lg:text-7xl">
+              Let's Build Something <br />
+              <span className="bg-gradient-to-r from-white via-zinc-300 to-zinc-500 bg-clip-text text-transparent">
+                Extraordinary.
+              </span>
+            </h2>
+
+            <p className="mt-6 text-base text-zinc-400 max-w-xl mx-auto">
+              We collaborate with global brands, agencies, and visionary teams
+              to produce next-generation visual assets and motion design
+              campaigns.
+            </p>
+
+            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+              <a
+                href="mailto:hello@dvlabs.com"
+                className="inline-flex h-12 w-full sm:w-auto items-center justify-center rounded bg-white px-8 text-xs font-bold uppercase tracking-wider text-zinc-950 transition-all hover:bg-zinc-200 hover:scale-105"
+              >
+                Inquire via Email
+              </a>
+              <Link
+                href="/signup"
+                className="inline-flex h-12 w-full sm:w-auto items-center justify-center rounded border border-zinc-800 bg-zinc-900 px-8 text-xs font-bold uppercase tracking-wider text-white transition-all hover:bg-zinc-800"
+              >
+                Client Portal
               </Link>
             </div>
           </div>
         </section>
       </main>
-      {/* Featured Projects */}
-      <section
-        id="projects"
-        className="w-full border-t border-zinc-200 bg-white py-24 dark:border-zinc-800 dark:bg-zinc-950 sm:py-32"
-      >
-        <div className="mx-auto w-full max-w-6xl px-6">
-          {/* Heading */}
-          <div className="mb-12">
-            <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
-              Featured
-            </p>
 
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-              Our work
-            </h2>
-
-            <p className="mt-4 max-w-xl text-zinc-600 dark:text-zinc-400">
-              A look at some of the projects we've created.
-            </p>
+      {/* 
+        ------------------------------------------------------------------------
+        7. FOOTER SECTION
+        ------------------------------------------------------------------------
+      */}
+      <footer className="border-t border-zinc-800/80 bg-zinc-950 py-12">
+        <div className="mx-auto max-w-6xl px-6 flex flex-col items-center justify-between gap-6 sm:flex-row">
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-bold tracking-wider uppercase text-white">
+              DV Labs
+            </span>
+            <span className="text-xs text-zinc-600">
+              © {new Date().getFullYear()} All rights reserved.
+            </span>
           </div>
 
-          {/* Project cards */}
-          <div className="grid gap-6 sm:grid-cols-2">
-            <Link
-              href="/projects/project1"
-              className="group overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900"
+          <div className="flex gap-6 text-xs text-zinc-400">
+            <a
+              href="https://twitter.com"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-white transition-colors"
             >
-              <div className="aspect-[16/10] overflow-hidden bg-zinc-200 dark:bg-zinc-800">
-                <img
-                  src="/assets/project1/project1.jpg"
-                  alt="Project 1"
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-              </div>
-
-              <div className="p-6">
-                <p className="text-xs font-medium uppercase tracking-wider text-zinc-500">
-                  ASUS Zenbook 14 Pro OLED
-                </p>
-
-                <h3 className="mt-2 text-xl font-semibold">
-                  Product Visualization
-                </h3>
-              </div>
-            </Link>
-
-            <Link
-              href="/projects/project2"
-              className="group overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900"
+              X / Twitter
+            </a>
+            <a
+              href="https://instagram.com"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-white transition-colors"
             >
-              <div className="aspect-[16/10] overflow-hidden bg-zinc-200 dark:bg-zinc-800">
-                <img
-                  src="/assets/project2/project2.jpg"
-                  alt="Project 2"
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-              </div>
-
-              <div className="p-6">
-                <p className="text-xs font-medium uppercase tracking-wider text-zinc-500">
-                  Cocacola
-                </p>
-
-                <h3 className="mt-2 text-xl font-semibold">
-                  Beverage Commercial
-                </h3>
-              </div>
-            </Link>
-
-            <Link
-              href="/projects/project3"
-              className="group overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900"
-            >
-              <div className="aspect-[16/10] overflow-hidden bg-zinc-200 dark:bg-zinc-800">
-                <img
-                  src="/assets/project3/project3.jpg"
-                  alt="Project 3"
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-              </div>
-
-              <div className="p-6">
-                <p className="text-xs font-medium uppercase tracking-wider text-zinc-500">
-                  Home Office
-                </p>
-
-                <h3 className="mt-2 text-xl font-semibold">Interior Design</h3>
-              </div>
-            </Link>
-
-            <Link
-              href="/projects/project4"
-              className="group overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900"
-            >
-              <div className="aspect-[16/10] overflow-hidden bg-zinc-200 dark:bg-zinc-800">
-                <img
-                  src="/assets/project4/project4.jpg"
-                  alt="Project 4"
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-              </div>
-
-              <div className="p-6">
-                <p className="text-xs font-medium uppercase tracking-wider text-zinc-500">
-                  Bedroom
-                </p>
-
-                <h3 className="mt-2 text-xl font-semibold">Interior Design</h3>
-              </div>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t border-zinc-200 py-10 dark:border-zinc-800">
-        <div className="container mx-auto max-w-5xl px-4 flex flex-col items-center justify-between gap-4 sm:flex-row">
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            © {new Date().getFullYear()} DV Labs. All rights reserved.
-          </p>
-          <div className="flex gap-6">
-            <Link
-              href="#"
-              className="text-sm text-zinc-500 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-50"
-            >
-              Twitter
-            </Link>
-            <Link
-              href="#"
-              className="text-sm text-zinc-500 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-50"
-            >
-              GitHub
-            </Link>
-            <Link
-              href="#"
-              className="text-sm text-zinc-500 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-50"
+              Instagram
+            </a>
+            <a
+              href="https://linkedin.com"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-white transition-colors"
             >
               LinkedIn
-            </Link>
+            </a>
+            <a
+              href="https://vimeo.com"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-white transition-colors"
+            >
+              Vimeo
+            </a>
           </div>
         </div>
       </footer>

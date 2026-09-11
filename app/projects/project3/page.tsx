@@ -1,16 +1,12 @@
-import Link from "next/link";
+import { getProjectComments } from "@/app/projects/comments";
+import { getProjectViewer } from "@/app/projects/viewer";
+import ProjectThreeClient from "@/app/projects/project3/project-three-client";
 
-export default function Project3() {
-  return (
-    <div>
-      <div>
-        <h1>Project3</h1>
-        <p>Still in development :(</p>
-        {/* back to home */}
-        <Link href="/" className="text-blue-500">
-          Back to home
-        </Link>
-      </div>
-    </div>
-  );
+export default async function ProjectThreePage() {
+  const [{ username }, comments] = await Promise.all([
+    getProjectViewer(),
+    getProjectComments("project3"),
+  ]);
+
+  return <ProjectThreeClient username={username} comments={comments} />;
 }

@@ -1,16 +1,12 @@
-import Link from "next/link";
+import { getProjectComments } from "@/app/projects/comments";
+import { getProjectViewer } from "@/app/projects/viewer";
+import ProjectTwoClient from "./project-two-client";
 
-export default function Project2() {
-  return (
-    <div>
-      <div>
-        <h1>Project2</h1>
-        <p>Still in development :(</p>
-        {/* back to home */}
-        <Link href="/" className="text-blue-500">
-          Back to home
-        </Link>
-      </div>
-    </div>
-  );
+export default async function ProjectTwoPage() {
+  const [{ username }, comments] = await Promise.all([
+    getProjectViewer(),
+    getProjectComments("project2"),
+  ]);
+
+  return <ProjectTwoClient username={username} comments={comments} />;
 }
