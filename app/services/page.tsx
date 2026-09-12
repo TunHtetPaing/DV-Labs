@@ -355,7 +355,7 @@ export default function ServicesPage() {
                 href={`mailto:${contactEmail}?subject=General Project Inquiry`}
                 className="mt-3 inline-flex h-11 items-center justify-center rounded bg-white px-8 text-xs font-bold uppercase tracking-wider text-zinc-950 transition-all hover:bg-zinc-200"
               >
-                Send me an Email
+                Send us an Email
               </a>
             </div>
           </div>
