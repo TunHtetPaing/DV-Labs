@@ -20,7 +20,7 @@ export default function ProjectOneClient({
 
           <nav>
             <Link
-              href="/#projects"
+              href="/#work"
               className="text-sm font-medium text-zinc-600 transition-colors hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-50"
             >
               Projects
@@ -273,7 +273,7 @@ export default function ProjectOneClient({
         <section className="border-t border-zinc-200 px-6 py-12 dark:border-zinc-800">
           <div className="mx-auto flex max-w-6xl items-center justify-between">
             <Link
-              href="/#projects"
+              href="/#work"
               className="text-sm font-medium text-zinc-600 transition-colors hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-50"
             >
               ← All Projects
@@ -296,28 +296,12 @@ export default function ProjectOneClient({
             © {new Date().getFullYear()} DV Labs. All rights reserved.
           </p>
 
-          <div className="flex gap-6">
-            <Link
-              href="#"
-              className="text-sm text-zinc-500 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-50"
-            >
-              Twitter
-            </Link>
-
-            <Link
-              href="#"
-              className="text-sm text-zinc-500 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-50"
-            >
-              GitHub
-            </Link>
-
-            <Link
-              href="#"
-              className="text-sm text-zinc-500 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-50"
-            >
-              LinkedIn
-            </Link>
-          </div>
+          <a
+            href="mailto:contact.dvlabs@gmail.com"
+            className="text-sm text-zinc-500 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-50"
+          >
+            contact.dvlabs@gmail.com
+          </a>
         </div>
       </footer>
     </div>

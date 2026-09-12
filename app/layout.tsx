@@ -13,8 +13,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Supabase Auth",
-  description: "Login and signup with Supabase Auth",
+  title: {
+    default: "DV Labs — 3D Studio",
+    template: "%s · DV Labs",
+  },
+  description:
+    "CGI product visualization, motion commercials, and real-time 3D from DV Labs.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

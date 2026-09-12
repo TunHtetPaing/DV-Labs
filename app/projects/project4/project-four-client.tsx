@@ -58,10 +58,7 @@ export default function ProjectFourClient({
                 poster="/assets/project4/project4.jpg"
                 className="h-full w-full object-cover"
               >
-                <source
-                  src="/assets/project4/pj_interior.mp4"
-                  type="video/mp4"
-                />
+                <source src="/assets/project_videos/v4.mp4" type="video/mp4" />
               </video>
             </div>
           </div>
@@ -273,28 +270,12 @@ export default function ProjectFourClient({
             © {new Date().getFullYear()} DV Labs. All rights reserved.
           </p>
 
-          <div className="flex gap-6">
-            <Link
-              href="#"
-              className="text-sm text-zinc-500 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-50"
-            >
-              Twitter
-            </Link>
-
-            <Link
-              href="#"
-              className="text-sm text-zinc-500 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-50"
-            >
-              GitHub
-            </Link>
-
-            <Link
-              href="#"
-              className="text-sm text-zinc-500 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-50"
-            >
-              LinkedIn
-            </Link>
-          </div>
+          <a
+            href="mailto:contact.dvlabs@gmail.com"
+            className="text-sm text-zinc-500 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-50"
+          >
+            contact.dvlabs@gmail.com
+          </a>
         </div>
       </footer>
     </div>

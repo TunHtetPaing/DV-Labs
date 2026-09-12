@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { logout } from "@/app/auth/actions";
+import FeaturedWork, { type FeaturedProject } from "@/app/featured-work";
 import { createClient } from "@/lib/supabase/server";
 
 // ============================================================================
@@ -7,18 +8,7 @@ import { createClient } from "@/lib/supabase/server";
 // Extract these to separate data files (e.g., @/data/projects.ts) as the studio grows.
 // ============================================================================
 
-interface Project {
-  id: string;
-  title: string;
-  client: string;
-  category: "product" | "commercial" | "interior" | "motion";
-  tags: string[];
-  thumbnailImg: string;
-  previewVideo: string;
-  href: string;
-}
-
-const FEATURED_PROJECTS: Project[] = [
+const FEATURED_PROJECTS: FeaturedProject[] = [
   {
     id: "project1",
     title: "Product Visualization",
@@ -26,7 +16,7 @@ const FEATURED_PROJECTS: Project[] = [
     category: "product",
     tags: ["Product Viz", "Octane Render", "Lookdev"],
     thumbnailImg: "/assets/project1/project1.jpg",
-    previewVideo: "/assets/project_videos/v1.mp4", // Replace with actual project preview video
+    previewVideo: "/assets/project_videos/v1.mp4",
     href: "/projects/project1",
   },
   {
@@ -155,7 +145,7 @@ export default async function Home() {
               Work
             </Link>
             <Link
-              href="#capabilities"
+              href="/services"
               className="text-xs font-semibold uppercase tracking-widest text-zinc-400 transition-colors hover:text-white hidden sm:block"
             >
               Services
@@ -169,7 +159,7 @@ export default async function Home() {
 
             <div className="h-4 w-px bg-zinc-800 hidden sm:block"></div>
 
-            {/* Client Portal / Auth Navigation */}
+            {/* Auth navigation */}
             {email ? (
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
@@ -207,7 +197,7 @@ export default async function Home() {
                   href="/login"
                   className="text-xs font-semibold uppercase tracking-widest text-zinc-400 transition-colors hover:text-white"
                 >
-                  Portal
+                  Log in
                 </Link>
                 <Link
                   href="#contact"
@@ -258,7 +248,7 @@ export default async function Home() {
               playsInline
               className="video-carousel-1 absolute inset-0 h-full w-full object-cover scale-105 filter brightness-75"
             >
-              <source src="/assets/v_1.mp4" type="video/mp4" />
+              <source src="/assets/project_videos/v1.mp4" type="video/mp4" />
             </video>
 
             <video
@@ -268,7 +258,7 @@ export default async function Home() {
               playsInline
               className="video-carousel-2 absolute inset-0 h-full w-full object-cover opacity-0 scale-105 filter brightness-75"
             >
-              <source src="/assets/v_4.mp4" type="video/mp4" />
+              <source src="/assets/project_videos/v4.mp4" type="video/mp4" />
             </video>
           </div>
 
@@ -352,96 +342,7 @@ export default async function Home() {
           ------------------------------------------------------------------------
         */}
         <section id="work" className="w-full py-24 sm:py-32 bg-zinc-950">
-          <div className="mx-auto w-full max-w-6xl px-6">
-            {/* Header with section title */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
-              <div>
-                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">
-                  Selected Archives
-                </p>
-                <h2 className="text-3xl font-black uppercase tracking-tight sm:text-5xl">
-                  Featured Work
-                </h2>
-              </div>
-
-              {/* Category Filter Tabs (Front-end trigger setup) */}
-              <div className="flex flex-wrap gap-2 text-xs font-medium text-zinc-400">
-                <button className="rounded-full bg-white px-4 py-1.5 text-zinc-950 font-bold">
-                  All
-                </button>
-                <button className="rounded-full border border-zinc-800 px-4 py-1.5 hover:border-zinc-600 hover:text-white transition-colors">
-                  Product Viz
-                </button>
-                <button className="rounded-full border border-zinc-800 px-4 py-1.5 hover:border-zinc-600 hover:text-white transition-colors">
-                  Commercials
-                </button>
-                <button className="rounded-full border border-zinc-800 px-4 py-1.5 hover:border-zinc-600 hover:text-white transition-colors">
-                  Interior
-                </button>
-              </div>
-            </div>
-
-            {/* Project Cards Grid */}
-            <div className="grid gap-8 sm:grid-cols-2">
-              {FEATURED_PROJECTS.map((project) => (
-                <Link
-                  key={project.id}
-                  href={project.href}
-                  className="group relative flex flex-col overflow-hidden rounded-xl border border-zinc-800/80 bg-zinc-900/50 transition-all duration-300 hover:border-zinc-600 hover:-translate-y-1"
-                >
-                  {/* Media Wrapper with Dual Layer (Image Fallback + Hover Video) */}
-                  <div className="relative aspect-[16/10] w-full overflow-hidden bg-zinc-900">
-                    {/* Default Image Poster */}
-                    <img
-                      src={project.thumbnailImg}
-                      alt={project.title}
-                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105 group-hover:opacity-0"
-                    />
-
-                    {/* Autoplay Video Preview on Card Hover */}
-                    <video
-                      autoPlay
-                      loop
-                      muted
-                      playsInline
-                      className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-                    >
-                      <source src={project.previewVideo} type="video/mp4" />
-                    </video>
-
-                    {/* View Case Study Overlay Badge */}
-                    <div className="absolute top-4 right-4 rounded-full bg-black/60 backdrop-blur-md px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                      View Project
-                    </div>
-                  </div>
-
-                  {/* Card Content & Tags */}
-                  <div className="flex flex-1 flex-col justify-between p-6">
-                    <div>
-                      <p className="text-xs font-medium uppercase tracking-wider text-zinc-400">
-                        {project.client}
-                      </p>
-                      <h3 className="mt-1 text-2xl font-bold tracking-tight text-white group-hover:text-zinc-200">
-                        {project.title}
-                      </h3>
-                    </div>
-
-                    {/* Technical Stack / Scope Tags */}
-                    <div className="mt-6 flex flex-wrap gap-2">
-                      {project.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="rounded border border-zinc-800 bg-zinc-950 px-2 py-0.5 text-[10px] font-medium text-zinc-400"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
+          <FeaturedWork projects={FEATURED_PROJECTS} />
         </section>
 
         {/* 
@@ -531,19 +432,13 @@ export default async function Home() {
               campaigns.
             </p>
 
-            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="mt-10 flex items-center justify-center">
               <a
-                href="mailto:hello@dvlabs.com"
+                href="mailto:contact.dvlabs@gmail.com"
                 className="inline-flex h-12 w-full sm:w-auto items-center justify-center rounded bg-white px-8 text-xs font-bold uppercase tracking-wider text-zinc-950 transition-all hover:bg-zinc-200 hover:scale-105"
               >
                 Inquire via Email
               </a>
-              <Link
-                href="/signup"
-                className="inline-flex h-12 w-full sm:w-auto items-center justify-center rounded border border-zinc-800 bg-zinc-900 px-8 text-xs font-bold uppercase tracking-wider text-white transition-all hover:bg-zinc-800"
-              >
-                Client Portal
-              </Link>
             </div>
           </div>
         </section>
@@ -565,40 +460,12 @@ export default async function Home() {
             </span>
           </div>
 
-          <div className="flex gap-6 text-xs text-zinc-400">
-            <a
-              href="https://twitter.com"
-              target="_blank"
-              rel="noreferrer"
-              className="hover:text-white transition-colors"
-            >
-              X / Twitter
-            </a>
-            <a
-              href="https://instagram.com"
-              target="_blank"
-              rel="noreferrer"
-              className="hover:text-white transition-colors"
-            >
-              Instagram
-            </a>
-            <a
-              href="https://linkedin.com"
-              target="_blank"
-              rel="noreferrer"
-              className="hover:text-white transition-colors"
-            >
-              LinkedIn
-            </a>
-            <a
-              href="https://vimeo.com"
-              target="_blank"
-              rel="noreferrer"
-              className="hover:text-white transition-colors"
-            >
-              Vimeo
-            </a>
-          </div>
+          <a
+            href="mailto:contact.dvlabs@gmail.com"
+            className="text-xs text-zinc-400 hover:text-white transition-colors"
+          >
+            contact.dvlabs@gmail.com
+          </a>
         </div>
       </footer>
     </div>

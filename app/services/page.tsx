@@ -115,7 +115,7 @@ const FREQUENT_QUESTIONS = [
 // ============================================================================
 
 export default function ServicesPage() {
-  const contactEmail = "contact.dvlabs@gmail.com"; // Replace with your studio email
+  const contactEmail = "contact.dvlabs@gmail.com";
 
   return (
     <div className="min-h-screen flex flex-col bg-zinc-950 text-zinc-50 selection:bg-white selection:text-zinc-950">
