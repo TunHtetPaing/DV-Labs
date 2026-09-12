@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { createOptionalClient } from "@/lib/supabase/server";
 
 export type Reply = {
   id: string;
@@ -34,7 +34,11 @@ const PROJECT_PATHS: Record<string, string> = {
 export async function getProjectComments(
   projectSlug: string,
 ): Promise<Comment[]> {
-  const supabase = await createClient();
+  const supabase = await createOptionalClient();
+  if (!supabase) {
+    return [];
+  }
+
   const { data, error } = await supabase
     .from("comments")
     .select("id, parent_id, username, body, created_at")
@@ -67,7 +71,11 @@ export async function postProjectComment(input: {
     return { error: "Comments must be 2000 characters or fewer." };
   }
 
-  const supabase = await createClient();
+  const supabase = await createOptionalClient();
+  if (!supabase) {
+    return { error: "Comments are unavailable right now." };
+  }
+
   const { data: userData, error: userError } = await supabase.auth.getUser();
 
   if (userError || !userData.user) {

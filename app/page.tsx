@@ -2,7 +2,7 @@ import Link from "next/link";
 import { logout } from "@/app/auth/actions";
 import FeaturedWork, { type FeaturedProject } from "@/app/featured-work";
 import StudioViewer from "@/app/studio-viewer";
-import { createClient } from "@/lib/supabase/server";
+import { createOptionalClient } from "@/lib/supabase/server";
 
 // ============================================================================
 // TYPES & DATA STRUCTURES
@@ -93,32 +93,43 @@ const CLIENT_LOGOS = [
 // ============================================================================
 
 export default async function Home() {
-  const supabase = await createClient();
-  const { data } = await supabase.auth.getClaims();
-  const email =
-    typeof data?.claims?.email === "string" ? data.claims.email : null;
-  const userId = typeof data?.claims?.sub === "string" ? data.claims.sub : null;
-  const metadata = data?.claims?.user_metadata;
-  const metadataUsername =
-    metadata &&
-    typeof metadata === "object" &&
-    "username" in metadata &&
-    typeof metadata.username === "string"
-      ? metadata.username
-      : null;
+  let email: string | null = null;
+  let displayName: string | null = null;
 
-  const { data: profile } = userId
-    ? await supabase
-        .from("profiles")
-        .select("username")
-        .eq("id", userId)
-        .maybeSingle()
-    : { data: null };
+  try {
+    const supabase = await createOptionalClient();
+    if (supabase) {
+      const { data } = await supabase.auth.getClaims();
+      email =
+        typeof data?.claims?.email === "string" ? data.claims.email : null;
+      const userId =
+        typeof data?.claims?.sub === "string" ? data.claims.sub : null;
+      const metadata = data?.claims?.user_metadata;
+      const metadataUsername =
+        metadata &&
+        typeof metadata === "object" &&
+        "username" in metadata &&
+        typeof metadata.username === "string"
+          ? metadata.username
+          : null;
 
-  const displayName =
-    profile?.username ??
-    metadataUsername ??
-    (email ? email.split("@")[0] : null);
+      const { data: profile } = userId
+        ? await supabase
+            .from("profiles")
+            .select("username")
+            .eq("id", userId)
+            .maybeSingle()
+        : { data: null };
+
+      displayName =
+        profile?.username ??
+        metadataUsername ??
+        (email ? email.split("@")[0] : null);
+    }
+  } catch {
+    email = null;
+    displayName = null;
+  }
 
   return (
     <div className="relative min-h-screen flex flex-col bg-zinc-950 text-zinc-50 overflow-x-hidden selection:bg-cyan-500 selection:text-zinc-950">

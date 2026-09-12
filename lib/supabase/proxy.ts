@@ -1,15 +1,19 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { getSupabasePublicEnv } from "@/lib/supabase/env";
 
 export async function updateSession(request: NextRequest) {
+  const env = getSupabasePublicEnv();
+  if (!env) {
+    return NextResponse.next({ request });
+  }
+
   let supabaseResponse = NextResponse.next({
     request,
   });
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-    {
+  try {
+    const supabase = createServerClient(env.url, env.key, {
       cookies: {
         getAll() {
           return request.cookies.getAll();
@@ -29,12 +33,14 @@ export async function updateSession(request: NextRequest) {
           );
         },
       },
-    },
-  );
+    });
 
-  // Do not run code between createServerClient and supabase.auth.getClaims().
-  // A simple mistake could make it very hard to debug random logouts.
-  await supabase.auth.getClaims();
+    // Do not run code between createServerClient and supabase.auth.getClaims().
+    // A simple mistake could make it very hard to debug random logouts.
+    await supabase.auth.getClaims();
+  } catch {
+    return NextResponse.next({ request });
+  }
 
   return supabaseResponse;
 }

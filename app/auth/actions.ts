@@ -3,7 +3,13 @@
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { getSupabasePublicEnv } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
+
+const MISSING_SUPABASE = {
+  error: "Auth is not configured on this server.",
+  message: null,
+};
 
 export type AuthState = {
   error: string | null;
@@ -15,6 +21,10 @@ export async function login(
   _prevState: AuthState,
   formData: FormData,
 ): Promise<AuthState> {
+  if (!getSupabasePublicEnv()) {
+    return MISSING_SUPABASE;
+  }
+
   const supabase = await createClient();
 
   const email = String(formData.get("email") ?? "").trim();
@@ -89,6 +99,10 @@ export async function signup(
   _prevState: AuthState,
   formData: FormData,
 ): Promise<AuthState> {
+  if (!getSupabasePublicEnv()) {
+    return MISSING_SUPABASE;
+  }
+
   const supabase = await createClient();
 
   const username = String(formData.get("username") ?? "").trim();
@@ -181,6 +195,10 @@ export async function signup(
 }
 
 export async function logout() {
+  if (!getSupabasePublicEnv()) {
+    redirect("/");
+  }
+
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
 

@@ -2,11 +2,13 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import AuthCard from "@/app/auth/auth-card";
 import SignupForm from "@/app/signup/signup-form";
-import { createClient } from "@/lib/supabase/server";
+import { createOptionalClient } from "@/lib/supabase/server";
 
 export default async function SignupPage() {
-  const supabase = await createClient();
-  const { data } = await supabase.auth.getClaims();
+  const supabase = await createOptionalClient();
+  const { data } = supabase
+    ? await supabase.auth.getClaims()
+    : { data: { claims: null } };
 
   if (data?.claims) {
     redirect("/");
