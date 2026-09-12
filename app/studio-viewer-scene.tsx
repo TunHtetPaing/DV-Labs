@@ -5,9 +5,10 @@ import {
   Environment,
   OrbitControls,
   useGLTF,
+  useProgress,
 } from "@react-three/drei";
 import { Canvas, useThree } from "@react-three/fiber";
-import { Suspense, useEffect, useLayoutEffect, useMemo } from "react";
+import { Suspense, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { Box3, Vector3 } from "three";
 
 function FittedModel({ url }: { url: string }) {
@@ -44,6 +45,43 @@ function FittedModel({ url }: { url: string }) {
   return <primitive object={clone} />;
 }
 
+function SceneLoader() {
+  const { active, progress } = useProgress();
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    if (active) {
+      setVisible(true);
+      return;
+    }
+
+    if (progress === 100) {
+      setVisible(false);
+    }
+  }, [active, progress]);
+
+  if (!visible) {
+    return null;
+  }
+
+  return (
+    <div className="pointer-events-none absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 bg-zinc-950/85">
+      <p className="text-xs font-semibold uppercase tracking-[0.25em] text-zinc-300">
+        Loading scene
+      </p>
+      <div className="h-px w-32 overflow-hidden bg-zinc-800">
+        <div
+          className="h-full bg-white transition-[width] duration-200"
+          style={{ width: `${Math.max(progress, 8)}%` }}
+        />
+      </div>
+      <p className="text-[11px] tabular-nums tracking-widest text-zinc-500">
+        {Math.round(progress)}%
+      </p>
+    </div>
+  );
+}
+
 export default function StudioViewerScene({ url }: { url: string }) {
   useEffect(() => {
     useGLTF.preload("/assets/3D_models/m1.glb");
@@ -52,56 +90,59 @@ export default function StudioViewerScene({ url }: { url: string }) {
   }, []);
 
   return (
-    <Canvas
-      shadows
-      camera={{ fov: 35, position: [1.8, 1.05, 2.6], near: 0.1, far: 50 }}
-      gl={{ antialias: true }}
-    >
-      <color attach="background" args={["#2a2a2a"]} />
-      <fog attach="fog" args={["#2a2a2a", 8, 18]} />
+    <div className="relative h-full w-full">
+      <SceneLoader />
+      <Canvas
+        shadows
+        camera={{ fov: 35, position: [1.8, 1.05, 2.6], near: 0.1, far: 50 }}
+        gl={{ antialias: true }}
+      >
+        <color attach="background" args={["#2a2a2a"]} />
+        <fog attach="fog" args={["#2a2a2a", 8, 18]} />
 
-      <ambientLight intensity={0.1} />
-      <spotLight
-        position={[5, 8, 4]}
-        angle={0.38}
-        penumbra={0.85}
-        intensity={2.1}
-        castShadow
-        shadow-mapSize-width={1024}
-        shadow-mapSize-height={1024}
-      />
-      <spotLight
-        position={[-5, 3, -1]}
-        angle={0.55}
-        penumbra={1}
-        intensity={0.45}
-      />
-      <directionalLight position={[0, 2.5, -5]} intensity={0.35} />
-
-      <Suspense fallback={null}>
-        <Environment files="/assets/HDRI/hdr1.exr" environmentIntensity={1} />
-        <FittedModel key={url} url={url} />
-        <ContactShadows
-          position={[0, 0, 0]}
-          opacity={0.5}
-          scale={8}
-          blur={2.4}
-          far={2.5}
-          color="#000000"
+        <ambientLight intensity={0.1} />
+        <spotLight
+          position={[5, 8, 4]}
+          angle={0.38}
+          penumbra={0.85}
+          intensity={2.1}
+          castShadow
+          shadow-mapSize-width={1024}
+          shadow-mapSize-height={1024}
         />
-      </Suspense>
+        <spotLight
+          position={[-5, 3, -1]}
+          angle={0.55}
+          penumbra={1}
+          intensity={0.45}
+        />
+        <directionalLight position={[0, 2.5, -5]} intensity={0.35} />
 
-      <OrbitControls
-        makeDefault
-        enablePan={false}
-        autoRotate
-        autoRotateSpeed={0.55}
-        minDistance={1.6}
-        maxDistance={6}
-        minPolarAngle={Math.PI / 3.4}
-        maxPolarAngle={Math.PI / 1.75}
-        enableDamping
-      />
-    </Canvas>
+        <Suspense fallback={null}>
+          <Environment files="/assets/HDRI/hdr1.exr" environmentIntensity={1} />
+          <FittedModel key={url} url={url} />
+          <ContactShadows
+            position={[0, 0, 0]}
+            opacity={0.5}
+            scale={8}
+            blur={2.4}
+            far={2.5}
+            color="#000000"
+          />
+        </Suspense>
+
+        <OrbitControls
+          makeDefault
+          enablePan={false}
+          autoRotate
+          autoRotateSpeed={0.55}
+          minDistance={1.6}
+          maxDistance={6}
+          minPolarAngle={Math.PI / 3.4}
+          maxPolarAngle={Math.PI / 1.75}
+          enableDamping
+        />
+      </Canvas>
+    </div>
   );
 }

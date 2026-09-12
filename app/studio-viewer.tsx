@@ -6,8 +6,13 @@ import { useCallback, useEffect, useState } from "react";
 const StudioViewerScene = dynamic(() => import("./studio-viewer-scene"), {
   ssr: false,
   loading: () => (
-    <div className="flex h-full w-full items-center justify-center bg-zinc-950 text-xs uppercase tracking-widest text-zinc-500">
-      Loading studio
+    <div className="flex h-full w-full flex-col items-center justify-center gap-4 bg-zinc-950">
+      <p className="text-xs font-semibold uppercase tracking-[0.25em] text-zinc-300">
+        Loading scene
+      </p>
+      <div className="h-px w-32 overflow-hidden bg-zinc-800">
+        <div className="h-full w-1/3 animate-pulse bg-white" />
+      </div>
     </div>
   ),
 });
