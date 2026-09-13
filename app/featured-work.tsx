@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export type FeaturedProject = {
   id: string;
@@ -20,6 +20,85 @@ const FILTERS = [
   { id: "commercial", label: "Commercials" },
   { id: "interior", label: "Interior" },
 ] as const;
+
+function ProjectCard({ project }: { project: FeaturedProject }) {
+  const [hovered, setHovered] = useState(false);
+  const [loadVideo, setLoadVideo] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (hovered && loadVideo) {
+      void videoRef.current?.play();
+    }
+  }, [hovered, loadVideo]);
+
+  return (
+    <Link
+      href={project.href}
+      onMouseEnter={() => {
+        setLoadVideo(true);
+        setHovered(true);
+      }}
+      onMouseLeave={() => {
+        setHovered(false);
+        const video = videoRef.current;
+        if (video) {
+          video.pause();
+          video.currentTime = 0;
+        }
+      }}
+      className="group relative flex flex-col overflow-hidden rounded-xl border border-zinc-800/80 bg-zinc-900/50 transition-all duration-300 hover:border-zinc-600 hover:-translate-y-1"
+    >
+      <div className="relative aspect-[16/10] w-full overflow-hidden bg-zinc-900">
+        <img
+          src={project.thumbnailImg}
+          alt={project.title}
+          className={`h-full w-full object-cover transition-all duration-700 group-hover:scale-105 ${
+            hovered ? "opacity-0" : "opacity-100"
+          }`}
+        />
+        <video
+          ref={videoRef}
+          muted
+          loop
+          playsInline
+          preload="none"
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${
+            hovered ? "opacity-100" : "opacity-0"
+          }`}
+        >
+          {loadVideo ? (
+            <source src={project.previewVideo} type="video/mp4" />
+          ) : null}
+        </video>
+        <div className="absolute top-4 right-4 rounded-full bg-black/60 backdrop-blur-md px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+          View Project
+        </div>
+      </div>
+
+      <div className="flex flex-1 flex-col justify-between p-6">
+        <div>
+          <p className="text-xs font-medium uppercase tracking-wider text-zinc-400">
+            {project.client}
+          </p>
+          <h3 className="mt-1 text-2xl font-bold tracking-tight text-white group-hover:text-zinc-200">
+            {project.title}
+          </h3>
+        </div>
+        <div className="mt-6 flex flex-wrap gap-2">
+          {project.tags.map((tag) => (
+            <span
+              key={tag}
+              className="rounded border border-zinc-800 bg-zinc-950 px-2 py-0.5 text-[10px] font-medium text-zinc-400"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+      </div>
+    </Link>
+  );
+}
 
 export default function FeaturedWork({
   projects,
@@ -70,56 +149,13 @@ export default function FeaturedWork({
       </div>
 
       {visible.length === 0 ? (
-        <p className="text-sm text-zinc-500">No projects in this category yet.</p>
+        <p className="text-sm text-zinc-500">
+          No projects in this category yet.
+        </p>
       ) : (
         <div className="grid gap-8 sm:grid-cols-2">
           {visible.map((project) => (
-            <Link
-              key={project.id}
-              href={project.href}
-              className="group relative flex flex-col overflow-hidden rounded-xl border border-zinc-800/80 bg-zinc-900/50 transition-all duration-300 hover:border-zinc-600 hover:-translate-y-1"
-            >
-              <div className="relative aspect-[16/10] w-full overflow-hidden bg-zinc-900">
-                <img
-                  src={project.thumbnailImg}
-                  alt={project.title}
-                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105 group-hover:opacity-0"
-                />
-                <video
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-                >
-                  <source src={project.previewVideo} type="video/mp4" />
-                </video>
-                <div className="absolute top-4 right-4 rounded-full bg-black/60 backdrop-blur-md px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                  View Project
-                </div>
-              </div>
-
-              <div className="flex flex-1 flex-col justify-between p-6">
-                <div>
-                  <p className="text-xs font-medium uppercase tracking-wider text-zinc-400">
-                    {project.client}
-                  </p>
-                  <h3 className="mt-1 text-2xl font-bold tracking-tight text-white group-hover:text-zinc-200">
-                    {project.title}
-                  </h3>
-                </div>
-                <div className="mt-6 flex flex-wrap gap-2">
-                  {project.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="rounded border border-zinc-800 bg-zinc-950 px-2 py-0.5 text-[10px] font-medium text-zinc-400"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </Link>
+            <ProjectCard key={project.id} project={project} />
           ))}
         </div>
       )}

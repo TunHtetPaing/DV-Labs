@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { logout } from "@/app/auth/actions";
 import FeaturedWork, { type FeaturedProject } from "@/app/featured-work";
+import HeroVideos from "@/app/hero-videos";
 import StudioViewer from "@/app/studio-viewer";
 import { createOptionalClient } from "@/lib/supabase/server";
 
@@ -249,48 +250,7 @@ export default async function Home() {
           ------------------------------------------------------------------------
         */}
           <section className="relative flex min-h-[90vh] w-full items-center justify-center overflow-hidden py-24 sm:py-32">
-            {/* Keyframe animation inline styles for dual video crossfade */}
-            <style
-              dangerouslySetInnerHTML={{
-                __html: `
-                @keyframes fade1 {
-                  0%, 45% { opacity: 1; }
-                  50%, 95% { opacity: 0; }
-                  100% { opacity: 1; }
-                }
-                @keyframes fade2 {
-                  0%, 45% { opacity: 0; }
-                  50%, 95% { opacity: 1; }
-                  100% { opacity: 0; }
-                }
-                .video-carousel-1 { animation: fade1 16s infinite; }
-                .video-carousel-2 { animation: fade2 16s infinite; }
-              `,
-              }}
-            />
-
-            {/* Background Video Reel Loop */}
-            <div className="absolute inset-0 z-0 bg-zinc-950">
-              <video
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="video-carousel-1 absolute inset-0 h-full w-full object-cover scale-105 filter brightness-75"
-              >
-                <source src="/assets/project_videos/v1.mp4" type="video/mp4" />
-              </video>
-
-              <video
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="video-carousel-2 absolute inset-0 h-full w-full object-cover opacity-0 scale-105 filter brightness-75"
-              >
-                <source src="/assets/project_videos/v4.mp4" type="video/mp4" />
-              </video>
-            </div>
+            <HeroVideos />
 
             {/* Vignette & Gradients Overlay */}
             <div className="absolute inset-0 z-10 bg-black/60" />

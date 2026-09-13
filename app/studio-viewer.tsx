@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const StudioViewerScene = dynamic(() => import("./studio-viewer-scene"), {
   ssr: false,
@@ -24,6 +24,8 @@ const MODELS = [
 ] as const;
 
 export default function StudioViewer() {
+  const rootRef = useRef<HTMLDivElement>(null);
+  const [inView, setInView] = useState(false);
   const [index, setIndex] = useState(0);
 
   const previous = useCallback(() => {
@@ -35,6 +37,26 @@ export default function StudioViewer() {
   }, []);
 
   useEffect(() => {
+    const el = rootRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "240px" },
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!inView) return;
+
     function onKey(event: KeyboardEvent) {
       if (event.key === "ArrowLeft") previous();
       if (event.key === "ArrowRight") next();
@@ -42,14 +64,25 @@ export default function StudioViewer() {
 
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [next, previous]);
+  }, [inView, next, previous]);
 
   const model = MODELS[index];
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-zinc-800/80 bg-zinc-950">
+    <div
+      ref={rootRef}
+      className="relative overflow-hidden rounded-2xl border border-zinc-800/80 bg-zinc-950"
+    >
       <div className="aspect-[16/10] w-full sm:aspect-[16/8]">
-        <StudioViewerScene url={model.url} />
+        {inView ? (
+          <StudioViewerScene url={model.url} />
+        ) : (
+          <div className="flex h-full w-full flex-col items-center justify-center gap-4 bg-zinc-950">
+            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-zinc-500">
+              Studio viewer
+            </p>
+          </div>
+        )}
       </div>
 
       <button

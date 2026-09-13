@@ -83,12 +83,6 @@ function SceneLoader() {
 }
 
 export default function StudioViewerScene({ url }: { url: string }) {
-  useEffect(() => {
-    useGLTF.preload("/assets/3D_models/m1.glb");
-    useGLTF.preload("/assets/3D_models/m2.glb");
-    useGLTF.preload("/assets/3D_models/m3.glb");
-  }, []);
-
   return (
     <div className="relative h-full w-full">
       <SceneLoader />
