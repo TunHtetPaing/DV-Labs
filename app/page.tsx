@@ -158,17 +158,17 @@ export default async function Home() {
         ------------------------------------------------------------------------
       */}
         <header className="sticky top-0 z-50 w-full border-b border-zinc-800/80 bg-zinc-950/80 backdrop-blur-md">
-          <div className="flex h-16 w-full items-center justify-between px-6 max-w-7xl mx-auto">
-            <Link href="/" className="flex items-center gap-2 group">
-              <span className="text-xl font-black tracking-wider uppercase bg-gradient-to-r from-white via-zinc-200 to-zinc-500 bg-clip-text text-transparent">
+          <div className="mx-auto flex min-h-16 w-full max-w-7xl items-center justify-between gap-3 px-5 py-3 sm:h-16 sm:px-6 sm:py-0">
+            <Link href="/" className="flex min-w-0 items-center gap-2 group">
+              <span className="truncate text-lg font-black tracking-wider uppercase bg-gradient-to-r from-white via-zinc-200 to-zinc-500 bg-clip-text text-transparent sm:text-xl">
                 DV Labs
               </span>
-              <span className="rounded bg-zinc-800 px-1.5 py-0.5 text-[10px] font-semibold text-zinc-400 tracking-wide">
+              <span className="hidden rounded bg-zinc-800 px-1.5 py-0.5 text-[10px] font-semibold text-zinc-400 tracking-wide sm:inline">
                 3D STUDIO
               </span>
             </Link>
 
-            <nav className="flex items-center gap-6">
+            <nav className="flex shrink-0 items-center gap-3 sm:gap-6">
               <Link
                 href="#work"
                 className="text-xs font-semibold uppercase tracking-widest text-zinc-400 transition-colors hover:text-white hidden sm:block"
@@ -216,23 +216,23 @@ export default async function Home() {
                   <form action={logout}>
                     <button
                       type="submit"
-                      className="h-8 rounded border border-zinc-800 px-3 text-xs font-medium text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-white"
+                      className="inline-flex h-9 items-center rounded border border-zinc-800 px-3 text-xs font-medium text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-white sm:h-8"
                     >
                       Log out
                     </button>
                   </form>
                 </div>
               ) : (
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 sm:gap-3">
                   <Link
                     href="/login"
-                    className="text-xs font-semibold uppercase tracking-widest text-zinc-400 transition-colors hover:text-white"
+                    className="inline-flex h-9 items-center px-2 text-xs font-semibold uppercase tracking-widest text-zinc-400 transition-colors hover:text-white sm:h-auto sm:px-0"
                   >
                     Log in
                   </Link>
                   <Link
                     href="#contact"
-                    className="inline-flex h-8 items-center rounded bg-white px-3.5 text-xs font-semibold text-zinc-950 transition-transform hover:scale-105"
+                    className="inline-flex h-9 items-center rounded bg-white px-3.5 text-xs font-semibold text-zinc-950 transition-transform hover:scale-105 sm:h-8"
                   >
                     Start Project
                   </Link>
