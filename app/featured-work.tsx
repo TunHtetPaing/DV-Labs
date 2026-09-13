@@ -41,10 +41,12 @@ function ProjectCard({ project }: { project: FeaturedProject }) {
       }}
       onMouseLeave={() => {
         setHovered(false);
+        setLoadVideo(false);
         const video = videoRef.current;
         if (video) {
           video.pause();
-          video.currentTime = 0;
+          video.removeAttribute("src");
+          video.load();
         }
       }}
       className="group relative flex flex-col overflow-hidden rounded-xl border border-zinc-800/80 bg-zinc-900/50 transition-all duration-300 hover:border-zinc-600 hover:-translate-y-1"

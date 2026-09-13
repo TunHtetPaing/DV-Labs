@@ -1,57 +1,73 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+
+const CLIPS = [
+  "/assets/project_videos/v1.mp4",
+  "/assets/project_videos/v4.mp4",
+] as const;
 
 export default function HeroVideos() {
-  const [loadSecond, setLoadSecond] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [inView, setInView] = useState(true);
+  const [clip, setClip] = useState(0);
 
   useEffect(() => {
-    const id = window.setTimeout(() => setLoadSecond(true), 4000);
-    return () => window.clearTimeout(id);
+    const el = rootRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setInView(entry.isIntersecting);
+      },
+      { threshold: 0.2 },
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    if (!inView) {
+      return;
+    }
+
+    const id = window.setInterval(() => {
+      setClip((current) => (current === 0 ? 1 : 0));
+    }, 8000);
+
+    return () => window.clearInterval(id);
+  }, [inView]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) {
+      return;
+    }
+
+    if (!inView) {
+      video.pause();
+      return;
+    }
+
+    void video.play();
+  }, [inView, clip]);
+
   return (
-    <div className="absolute inset-0 z-0 bg-zinc-950">
-      <style
-        dangerouslySetInnerHTML={{
-          __html: `
-            @keyframes fade1 {
-              0%, 45% { opacity: 1; }
-              50%, 95% { opacity: 0; }
-              100% { opacity: 1; }
-            }
-            @keyframes fade2 {
-              0%, 45% { opacity: 0; }
-              50%, 95% { opacity: 1; }
-              100% { opacity: 0; }
-            }
-            .video-carousel-1 { animation: fade1 16s infinite; }
-            .video-carousel-2 { animation: fade2 16s infinite; }
-          `,
-        }}
-      />
+    <div ref={rootRef} className="absolute inset-0 z-0 bg-zinc-950">
       <video
+        key={CLIPS[clip]}
+        ref={videoRef}
         autoPlay
-        loop
         muted
         playsInline
-        preload="metadata"
-        className="video-carousel-1 absolute inset-0 h-full w-full object-cover scale-105 filter brightness-75"
+        loop
+        preload="none"
+        className="absolute inset-0 h-full w-full object-cover scale-105 filter brightness-75"
       >
-        <source src="/assets/project_videos/v1.mp4" type="video/mp4" />
+        <source src={CLIPS[clip]} type="video/mp4" />
       </video>
-      {loadSecond ? (
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="none"
-          className="video-carousel-2 absolute inset-0 h-full w-full object-cover opacity-0 scale-105 filter brightness-75"
-        >
-          <source src="/assets/project_videos/v4.mp4" type="video/mp4" />
-        </video>
-      ) : null}
     </div>
   );
 }

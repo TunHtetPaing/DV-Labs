@@ -55,6 +55,7 @@ export default function ProjectTwoClient({
               <video
                 controls
                 playsInline
+                preload="metadata"
                 poster="/assets/project2/project2.jpg"
                 className="h-full w-full object-cover"
               >

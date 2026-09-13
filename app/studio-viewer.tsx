@@ -42,12 +42,9 @@ export default function StudioViewer() {
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          setInView(true);
-          observer.disconnect();
-        }
+        setInView(entry.isIntersecting);
       },
-      { rootMargin: "240px" },
+      { rootMargin: "80px", threshold: 0.05 },
     );
 
     observer.observe(el);
@@ -75,7 +72,7 @@ export default function StudioViewer() {
     >
       <div className="aspect-[16/10] w-full sm:aspect-[16/8]">
         {inView ? (
-          <StudioViewerScene url={model.url} />
+          <StudioViewerScene url={model.url} active={inView} />
         ) : (
           <div className="flex h-full w-full flex-col items-center justify-center gap-4 bg-zinc-950">
             <p className="text-xs font-semibold uppercase tracking-[0.25em] text-zinc-500">

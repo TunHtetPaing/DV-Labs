@@ -55,6 +55,7 @@ export default function ProjectThreeClient({
               <video
                 controls
                 playsInline
+                preload="metadata"
                 poster="/assets/project3/project3.jpg"
                 className="h-full w-full object-cover"
               >

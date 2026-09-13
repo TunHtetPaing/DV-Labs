@@ -8,30 +8,49 @@ import {
   useProgress,
 } from "@react-three/drei";
 import { Canvas, useThree } from "@react-three/fiber";
-import { Suspense, useEffect, useLayoutEffect, useMemo, useState } from "react";
-import { Box3, Vector3 } from "three";
+import { Suspense, useEffect, useLayoutEffect, useState } from "react";
+import { Box3, Mesh, Vector3 } from "three";
+
+function disposeObject(root: {
+  traverse: (fn: (object: unknown) => void) => void;
+}) {
+  root.traverse((object) => {
+    if (!(object instanceof Mesh)) {
+      return;
+    }
+
+    object.geometry?.dispose();
+
+    const material = object.material;
+    if (Array.isArray(material)) {
+      material.forEach((item) => item.dispose());
+      return;
+    }
+
+    material?.dispose();
+  });
+}
 
 function FittedModel({ url }: { url: string }) {
   const { scene } = useGLTF(url);
-  const clone = useMemo(() => scene.clone(true), [scene]);
   const { camera, controls } = useThree();
 
   useLayoutEffect(() => {
-    clone.position.set(0, 0, 0);
-    clone.scale.set(1, 1, 1);
-    clone.updateMatrixWorld(true);
+    scene.position.set(0, 0, 0);
+    scene.scale.set(1, 1, 1);
+    scene.updateMatrixWorld(true);
 
-    const box = new Box3().setFromObject(clone);
+    const box = new Box3().setFromObject(scene);
     const size = box.getSize(new Vector3());
     const center = box.getCenter(new Vector3());
     const maxDim = Math.max(size.x, size.y, size.z) || 1;
     const fit = 2.1 / maxDim;
 
-    clone.scale.setScalar(fit);
-    clone.position.set(-center.x * fit, -box.min.y * fit, -center.z * fit);
-    clone.updateMatrixWorld(true);
+    scene.scale.setScalar(fit);
+    scene.position.set(-center.x * fit, -box.min.y * fit, -center.z * fit);
+    scene.updateMatrixWorld(true);
 
-    const look = new Box3().setFromObject(clone).getCenter(new Vector3());
+    const look = new Box3().setFromObject(scene).getCenter(new Vector3());
     camera.position.set(look.x + 1.8, look.y + 1.05, look.z + 2.6);
     camera.lookAt(look);
     camera.updateProjectionMatrix();
@@ -40,9 +59,16 @@ function FittedModel({ url }: { url: string }) {
       (controls as { target: Vector3 }).target.copy(look);
       (controls as { update?: () => void }).update?.();
     }
-  }, [camera, clone, controls]);
+  }, [camera, controls, scene]);
 
-  return <primitive object={clone} />;
+  useEffect(() => {
+    return () => {
+      disposeObject(scene);
+      useGLTF.clear(url);
+    };
+  }, [scene, url]);
+
+  return <primitive object={scene} />;
 }
 
 function SceneLoader() {
@@ -82,14 +108,26 @@ function SceneLoader() {
   );
 }
 
-export default function StudioViewerScene({ url }: { url: string }) {
+export default function StudioViewerScene({
+  url,
+  active,
+}: {
+  url: string;
+  active: boolean;
+}) {
   return (
     <div className="relative h-full w-full">
       <SceneLoader />
       <Canvas
         shadows
+        frameloop={active ? "always" : "never"}
+        dpr={[1, 1.5]}
         camera={{ fov: 35, position: [1.8, 1.05, 2.6], near: 0.1, far: 50 }}
-        gl={{ antialias: true }}
+        gl={{
+          antialias: true,
+          powerPreference: "high-performance",
+          stencil: false,
+        }}
       >
         <color attach="background" args={["#2a2a2a"]} />
         <fog attach="fog" args={["#2a2a2a", 8, 18]} />
@@ -101,8 +139,8 @@ export default function StudioViewerScene({ url }: { url: string }) {
           penumbra={0.85}
           intensity={2.1}
           castShadow
-          shadow-mapSize-width={1024}
-          shadow-mapSize-height={1024}
+          shadow-mapSize-width={512}
+          shadow-mapSize-height={512}
         />
         <spotLight
           position={[-5, 3, -1]}
@@ -117,9 +155,9 @@ export default function StudioViewerScene({ url }: { url: string }) {
           <FittedModel key={url} url={url} />
           <ContactShadows
             position={[0, 0, 0]}
-            opacity={0.5}
+            opacity={0.45}
             scale={8}
-            blur={2.4}
+            blur={1.6}
             far={2.5}
             color="#000000"
           />
@@ -128,7 +166,7 @@ export default function StudioViewerScene({ url }: { url: string }) {
         <OrbitControls
           makeDefault
           enablePan={false}
-          autoRotate
+          autoRotate={active}
           autoRotateSpeed={0.55}
           minDistance={1.6}
           maxDistance={6}

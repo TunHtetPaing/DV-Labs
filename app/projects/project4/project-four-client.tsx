@@ -55,6 +55,7 @@ export default function ProjectFourClient({
               <video
                 controls
                 playsInline
+                preload="metadata"
                 poster="/assets/project4/project4.jpg"
                 className="h-full w-full object-cover"
               >
