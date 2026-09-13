@@ -1,38 +1,56 @@
-# DV-Labs
+# DV Labs
 
-Next.js and Supabase project for a Motion Studio.
+Portfolio site for **DV Labs**, a 3D and motion studio. It shows case studies, services and pricing, an in-browser 3D viewer, and optional login for project comments.
 
-## Getting Started
+**Live site:** [https://dv-labs.vercel.app](https://dv-labs.vercel.app)
 
-First, run the development server:
+Use that URL when sharing the project. Vercel also creates branch URLs such as `dv-labs-git-main-…vercel.app`; those can sit behind a Vercel login wall and should not be sent to clients.
+
+Technical detail (routes, auth, database, 3D, deploy): [docs/PROJECT.md](docs/PROJECT.md).
+
+## Stack
+
+- Next.js 16 (App Router) and React 19
+- Tailwind CSS 4
+- Supabase Auth and Postgres
+- Three.js / React Three Fiber / Drei
+- Hosted on Vercel
+
+## Local setup
+
+```bash
+git clone https://github.com/TunHtetPaing/DV-Labs.git
+cd DV-Labs
+npm install
+```
+
+Copy `.env.example` to `.env.local` and add your Supabase values:
+
+```
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+```
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Script          | Purpose                    |
+| --------------- | -------------------------- |
+| `npm run dev`   | Local development          |
+| `npm run build` | Production build           |
+| `npm run start` | Serve the production build |
+| `npm run lint`  | ESLint                     |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Do not commit `.env.local`.
 
-## Learn More
+## Production
 
-To learn more about Next.js, take a look at the following resources:
+1. Push `main` to GitHub. Vercel builds automatically.
+2. In Vercel → **Settings → Environment Variables**, add the same two keys for **Production**.
+3. **Redeploy** after adding or changing env vars. Without them, the studio site still loads, but login shows _Auth is not configured on this server._
+4. In Supabase → **Authentication → URL configuration**, set Site URL and Redirect URLs to `https://dv-labs.vercel.app` (keep localhost for local work).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Contact: [contact.dvlabs@gmail.com](mailto:contact.dvlabs@gmail.com)
