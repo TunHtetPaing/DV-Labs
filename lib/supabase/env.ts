@@ -1,8 +1,15 @@
+function readEnv(name: string) {
+  return process.env[name]?.trim() || undefined;
+}
+
 export function getSupabasePublicEnv() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  const url =
+    readEnv("NEXT_PUBLIC_SUPABASE_URL") || readEnv("SUPABASE_URL");
   const key =
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() ||
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
+    readEnv("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY") ||
+    readEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY") ||
+    readEnv("SUPABASE_PUBLISHABLE_KEY") ||
+    readEnv("SUPABASE_ANON_KEY");
 
   if (!url || !key) {
     return null;
