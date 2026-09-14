@@ -38,16 +38,16 @@ export default function HeroVideos() {
   }, []);
 
   useEffect(() => {
-    if (!inView) {
+    if (!inView || clip !== 0) {
       return;
     }
 
-    const id = window.setInterval(() => {
-      setClip((current) => (current === 0 ? 1 : 0));
-    }, 8000);
+    const id = window.setTimeout(() => {
+      setClip(1);
+    }, 16000);
 
-    return () => window.clearInterval(id);
-  }, [inView]);
+    return () => window.clearTimeout(id);
+  }, [inView, clip]);
 
   useEffect(() => {
     const video = videoRef.current;

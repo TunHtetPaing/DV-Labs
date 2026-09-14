@@ -30,33 +30,89 @@ function playQuietly(video: HTMLVideoElement) {
   });
 }
 
-function ProjectCard({ project }: { project: FeaturedProject }) {
-  const [hovered, setHovered] = useState(false);
-  const [loadVideo, setLoadVideo] = useState(false);
+function canPreviewVideo() {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    return false;
+  }
+  if (window.matchMedia("(hover: none)").matches) {
+    return false;
+  }
+  const connection = (
+    navigator as Navigator & {
+      connection?: { saveData?: boolean; effectiveType?: string };
+    }
+  ).connection;
+  if (connection?.saveData) {
+    return false;
+  }
+  if (
+    connection?.effectiveType === "slow-2g" ||
+    connection?.effectiveType === "2g"
+  ) {
+    return false;
+  }
+  return true;
+}
+
+function ProjectCard({
+  project,
+  previewing,
+  onPreview,
+}: {
+  project: FeaturedProject;
+  previewing: boolean;
+  onPreview: (id: string | null) => void;
+}) {
+  const [ready, setReady] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const hoverTimer = useRef<number>(0);
 
   useEffect(() => {
-    const video = videoRef.current;
-    if (!hovered || !loadVideo || !video) {
+    if (!previewing) {
+      setReady(false);
       return;
     }
 
-    void playQuietly(video);
+    const video = videoRef.current;
+    if (!video) {
+      return;
+    }
+
+    const markReady = () => {
+      setReady(true);
+    };
+
+    video.addEventListener("canplay", markReady);
+    video.load();
+    void playQuietly(video).then(() => {
+      if (!video.paused) {
+        setReady(true);
+      }
+    });
+
     return () => {
+      video.removeEventListener("canplay", markReady);
       video.pause();
     };
-  }, [hovered, loadVideo]);
+  }, [previewing]);
+
+  const showSpinner = previewing && !ready;
 
   return (
     <Link
       href={project.href}
       onMouseEnter={() => {
-        setLoadVideo(true);
-        setHovered(true);
+        if (!canPreviewVideo()) {
+          return;
+        }
+        window.clearTimeout(hoverTimer.current);
+        hoverTimer.current = window.setTimeout(() => {
+          onPreview(project.id);
+        }, 150);
       }}
       onMouseLeave={() => {
-        setHovered(false);
-        setLoadVideo(false);
+        window.clearTimeout(hoverTimer.current);
+        onPreview(null);
         const video = videoRef.current;
         if (video) {
           video.pause();
@@ -70,8 +126,10 @@ function ProjectCard({ project }: { project: FeaturedProject }) {
         <img
           src={project.thumbnailImg}
           alt={project.title}
+          loading="lazy"
+          decoding="async"
           className={`h-full w-full object-cover transition-all duration-700 group-hover:scale-105 ${
-            hovered ? "opacity-0" : "opacity-100"
+            ready ? "opacity-0" : "opacity-100"
           }`}
         />
         <video
@@ -81,14 +139,22 @@ function ProjectCard({ project }: { project: FeaturedProject }) {
           playsInline
           preload="none"
           className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${
-            hovered ? "opacity-100" : "opacity-0"
+            ready ? "opacity-100" : "opacity-0"
           }`}
         >
-          {loadVideo ? (
+          {previewing ? (
             <source src={project.previewVideo} type="video/mp4" />
           ) : null}
         </video>
-        <div className="absolute top-4 right-4 rounded-full bg-black/60 backdrop-blur-md px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+        {showSpinner ? (
+          <div
+            className="absolute inset-0 z-10 flex items-center justify-center bg-black/30"
+            aria-hidden
+          >
+            <span className="h-8 w-8 animate-spin rounded-full border-2 border-white/25 border-t-white" />
+          </div>
+        ) : null}
+        <div className="absolute top-4 right-4 z-20 rounded-full bg-black/60 backdrop-blur-md px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
           View Project
         </div>
       </div>
@@ -123,6 +189,7 @@ export default function FeaturedWork({
   projects: FeaturedProject[];
 }) {
   const [filter, setFilter] = useState<(typeof FILTERS)[number]["id"]>("all");
+  const [previewId, setPreviewId] = useState<string | null>(null);
 
   const visible = useMemo(
     () =>
@@ -172,7 +239,12 @@ export default function FeaturedWork({
       ) : (
         <div className="grid gap-8 sm:grid-cols-2">
           {visible.map((project) => (
-            <ProjectCard key={project.id} project={project} />
+            <ProjectCard
+              key={project.id}
+              project={project}
+              previewing={previewId === project.id}
+              onPreview={setPreviewId}
+            />
           ))}
         </div>
       )}

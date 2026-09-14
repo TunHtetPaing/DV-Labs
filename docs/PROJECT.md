@@ -132,7 +132,7 @@ Tables and triggers live in the Supabase project, not in this repo.
 
 - Files: `/assets/3D_models/m1.glb`, `m2.glb`, `m3.glb`
 - Environment: `/assets/HDRI/hdr1.exr`
-- The canvas mounts only when the section is near the viewport (`IntersectionObserver`, 240px root margin).
+- The canvas mounts after **Load 3D scene**. Scrolling away only stops auto-rotate; the model stays in memory and the loading overlay does not return.
 - One model at a time. Previous/next buttons and left/right arrow keys.
 - `useProgress` overlay while GLB/HDRI load.
 - Mesh is fitted and sat on `y = 0` with contact shadows.
@@ -145,9 +145,9 @@ Tables and triggers live in the Supabase project, not in this repo.
 Current loading rules:
 
 - `proxy.ts` does **not** run on `mp4`, `webm`, `glb`, `gltf`, `exr`, `hdr`, or common images. Media hits the CDN without a Supabase session check.
-- Featured Work shows a still; the preview MP4 is attached only on hover.
-- Hero plays `v1.mp4` immediately and starts `v4.mp4` after 4 seconds.
-- Unused GLBs are not preloaded.
+- Featured Work shows a still; a hover clip starts after a short delay on a pointer device, with a spinner on the JPG until it can play. Only one card plays at a time. Touch and Save-Data skip the clip.
+- Hero plays `v1.mp4` first and waits 16 seconds before `v4.mp4`.
+- Studio Viewer does not download a GLB until **Load 3D scene**. The canvas stays mounted after that so scrolling away does not reload the model.
 
 Further gains require compressing assets (short 720p hover clips, Draco/gltfpack GLBs, smaller HDR).
 

@@ -9,27 +9,7 @@ import {
 } from "@react-three/drei";
 import { Canvas, useThree } from "@react-three/fiber";
 import { Suspense, useEffect, useLayoutEffect, useState } from "react";
-import { Box3, Mesh, Vector3 } from "three";
-
-function disposeObject(root: {
-  traverse: (fn: (object: unknown) => void) => void;
-}) {
-  root.traverse((object) => {
-    if (!(object instanceof Mesh)) {
-      return;
-    }
-
-    object.geometry?.dispose();
-
-    const material = object.material;
-    if (Array.isArray(material)) {
-      material.forEach((item) => item.dispose());
-      return;
-    }
-
-    material?.dispose();
-  });
-}
+import { Box3, Vector3 } from "three";
 
 function FittedModel({ url }: { url: string }) {
   const { scene } = useGLTF(url);
@@ -61,32 +41,24 @@ function FittedModel({ url }: { url: string }) {
     }
   }, [camera, controls, scene]);
 
-  useEffect(() => {
-    return () => {
-      disposeObject(scene);
-      useGLTF.clear(url);
-    };
-  }, [scene, url]);
-
   return <primitive object={scene} />;
 }
 
-function SceneLoader() {
+function SceneLoader({ url }: { url: string }) {
   const { active, progress } = useProgress();
-  const [visible, setVisible] = useState(true);
+  const [readyUrl, setReadyUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    if (active) {
-      setVisible(true);
-      return;
-    }
+    setReadyUrl(null);
+  }, [url]);
 
-    if (progress === 100) {
-      setVisible(false);
+  useEffect(() => {
+    if (!active && progress === 100) {
+      setReadyUrl(url);
     }
-  }, [active, progress]);
+  }, [active, progress, url]);
 
-  if (!visible) {
+  if (readyUrl === url) {
     return null;
   }
 
@@ -117,14 +89,14 @@ export default function StudioViewerScene({
 }) {
   return (
     <div className="relative h-full w-full">
-      <SceneLoader />
+      <SceneLoader url={url} />
       <Canvas
         shadows
-        frameloop={active ? "always" : "never"}
-        dpr={[1, 1.5]}
+        frameloop="always"
+        dpr={[1, 1.25]}
         camera={{ fov: 35, position: [1.8, 1.05, 2.6], near: 0.1, far: 50 }}
         gl={{
-          antialias: true,
+          antialias: false,
           powerPreference: "high-performance",
           stencil: false,
         }}
@@ -151,7 +123,11 @@ export default function StudioViewerScene({
         <directionalLight position={[0, 2.5, -5]} intensity={0.35} />
 
         <Suspense fallback={null}>
-          <Environment files="/assets/HDRI/hdr1.exr" environmentIntensity={1} />
+          <Environment
+            files="/assets/HDRI/hdr1.exr"
+            environmentIntensity={1}
+            frames={1}
+          />
           <FittedModel key={url} url={url} />
           <ContactShadows
             position={[0, 0, 0]}
