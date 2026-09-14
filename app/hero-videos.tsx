@@ -7,6 +7,15 @@ const CLIPS = [
   "/assets/project_videos/v4.mp4",
 ] as const;
 
+function playQuietly(video: HTMLVideoElement) {
+  return video.play().catch((error: unknown) => {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      return;
+    }
+    throw error;
+  });
+}
+
 export default function HeroVideos() {
   const rootRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -51,7 +60,7 @@ export default function HeroVideos() {
       return;
     }
 
-    void video.play();
+    void playQuietly(video);
   }, [inView, clip]);
 
   return (
@@ -59,7 +68,6 @@ export default function HeroVideos() {
       <video
         key={CLIPS[clip]}
         ref={videoRef}
-        autoPlay
         muted
         playsInline
         loop

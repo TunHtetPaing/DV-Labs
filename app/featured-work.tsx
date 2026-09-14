@@ -21,15 +21,30 @@ const FILTERS = [
   { id: "interior", label: "Interior" },
 ] as const;
 
+function playQuietly(video: HTMLVideoElement) {
+  return video.play().catch((error: unknown) => {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      return;
+    }
+    throw error;
+  });
+}
+
 function ProjectCard({ project }: { project: FeaturedProject }) {
   const [hovered, setHovered] = useState(false);
   const [loadVideo, setLoadVideo] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    if (hovered && loadVideo) {
-      void videoRef.current?.play();
+    const video = videoRef.current;
+    if (!hovered || !loadVideo || !video) {
+      return;
     }
+
+    void playQuietly(video);
+    return () => {
+      video.pause();
+    };
   }, [hovered, loadVideo]);
 
   return (
