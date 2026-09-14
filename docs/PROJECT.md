@@ -28,11 +28,13 @@ app/
   studio-viewer.tsx        Lazy-mounts the 3D canvas
   studio-viewer-scene.tsx  R3F scene (GLB + HDRI)
   services/page.tsx        Pricing, process, FAQ
-  login/  signup/
+  login/  signup/  forgot-password/  reset-password/
   auth/
-    actions.ts             login, signup, logout
+    actions.ts             login, signup, password reset, logout
     callback/route.ts      OAuth / PKCE code exchange
-    confirm/route.ts       Email confirmation (token_hash)
+    confirm/route.ts       Email confirm / recovery (token_hash)
+    reset/route.ts         Password-reset email callback
+    paths.ts               Safe post-auth redirect paths
   projects/
     comments.ts            Load / post comments
     viewer.ts              Current username
@@ -61,9 +63,12 @@ The homepage is a server component. Filters, hero video, and Three.js are client
 | `/projects/project4` | Bedroom interior (local MP4)                              |
 | `/login`             | Email + password                                          |
 | `/signup`            | Username, date of birth, email, password                  |
+| `/forgot-password`   | Request a password reset email                            |
+| `/reset-password`    | Set a new password after the email link                   |
 | `/auth/callback`     | Session exchange from `?code=`                            |
+| `/auth/reset`        | Password-reset email → `/reset-password`                  |
 | `/auth/confirm`      | Email confirm from `token_hash` + `type`                  |
-| `/error`             | Invalid or expired confirm link                           |
+| `/error`             | Invalid or expired confirm / reset link                   |
 
 ## Environment
 
@@ -86,13 +91,21 @@ If env is missing, marketing pages still render. Login and signup return _Auth i
 - Password: at least 8 characters, including a letter, a number, and a special character.
 - Must be at least 13 years old.
 - Signup confirmation email uses `origin/auth/confirm`.
+- Password reset: `/forgot-password` emails a link to `origin/auth/reset`, which starts a session and sends the user to `/reset-password`. If the email still lands on `/` (default Supabase template puts tokens in the URL hash), `RecoveryRedirect` in the root layout sends the user to `/reset-password`. Recovery links that use `token_hash` + `type=recovery` go through `/auth/confirm` to the same page. After a successful update they are signed out and sent to `/login?reset=1`. Same password rules as signup.
+
+  In Supabase → **Authentication → Email Templates → Reset password**, use this link so the server can read the token (optional if the in-app catcher is enough):
+
+  `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next=/reset-password`
+
+  Redirect URLs must include `http://localhost:3000/**` and `https://dv-labs.vercel.app/**`.
+
 - Session cookies are refreshed on each matched request in `proxy.ts` → `updateSession` → `getClaims()`.
 - Logout clears the session and redirects to `/`.
 
 Supabase dashboard (production):
 
 - **Site URL:** `https://dv-labs.vercel.app`
-- **Redirect URLs:** that origin (`/**` and `/auth/confirm`) plus `http://localhost:3000/**`
+- **Redirect URLs:** that origin (`/**`, `/auth/confirm`, `/auth/callback`) plus `http://localhost:3000/**`
 
 ## Comments and profiles
 
@@ -150,9 +163,9 @@ Contact used in the UI: `contact.dvlabs@gmail.com`.
 
 ## Known gaps
 
-- No `not-found.tsx`, password reset, About, or legal pages.
+- No `not-found.tsx`, About, or legal pages.
 - Comment trigger SQL and table definitions are not in the repo.
-- `lib/supabase/client.ts` is unused; forms use server actions.
+- `lib/supabase/client.ts` is used by password recovery and the reset-password page.
 - Case-study pages use `dark:` classes, but `<html>` has no `dark` class, so they stay light.
 - Large media is committed under `public/` (no Git LFS).
 - Console may warn that `PCFSoftShadowMap` was removed in the current Three.js build.

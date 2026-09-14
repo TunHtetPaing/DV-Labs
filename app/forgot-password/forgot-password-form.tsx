@@ -1,14 +1,26 @@
 "use client";
 
 import { useActionState } from "react";
-import Link from "next/link";
-import { login, type AuthState } from "@/app/auth/actions";
-import PasswordField from "@/app/auth/password-field";
+import { requestPasswordReset, type AuthState } from "@/app/auth/actions";
 
 const initialState: AuthState = { error: null, message: null };
 
-export default function LoginForm() {
-  const [state, formAction, pending] = useActionState(login, initialState);
+export default function ForgotPasswordForm() {
+  const [state, formAction, pending] = useActionState(
+    requestPasswordReset,
+    initialState,
+  );
+
+  if (state.message) {
+    return (
+      <p
+        className="rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
+        role="status"
+      >
+        {state.message}
+      </p>
+    );
+  }
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
@@ -23,20 +35,6 @@ export default function LoginForm() {
           className="h-11 rounded-lg border border-zinc-200 bg-white px-3 text-base font-normal text-zinc-950 outline-none ring-zinc-400 focus:ring-2 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50 dark:ring-zinc-600"
         />
       </label>
-      <PasswordField
-        id="password"
-        name="password"
-        label="Password"
-        autoComplete="current-password"
-      />
-      <p className="text-right text-sm">
-        <Link
-          href="/forgot-password"
-          className="font-medium text-zinc-600 underline-offset-4 hover:text-zinc-950 hover:underline dark:text-zinc-400 dark:hover:text-zinc-50"
-        >
-          Forgot password?
-        </Link>
-      </p>
       {state.error ? (
         <p className="text-sm text-red-600 dark:text-red-400" role="alert">
           {state.error}
@@ -47,7 +45,7 @@ export default function LoginForm() {
         disabled={pending}
         className="mt-2 h-11 rounded-lg bg-zinc-950 px-4 text-sm font-medium text-white transition-colors hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-zinc-50 dark:text-zinc-950 dark:hover:bg-zinc-200"
       >
-        {pending ? "Signing in..." : "Log in"}
+        {pending ? "Sending..." : "Send reset link"}
       </button>
     </form>
   );

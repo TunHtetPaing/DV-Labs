@@ -194,6 +194,84 @@ export async function signup(
   redirect("/");
 }
 
+export async function requestPasswordReset(
+  _prevState: AuthState,
+  formData: FormData,
+): Promise<AuthState> {
+  if (!getSupabasePublicEnv()) {
+    return MISSING_SUPABASE;
+  }
+
+  const email = String(formData.get("email") ?? "").trim();
+  if (!email) {
+    return { error: "Email is required.", message: null };
+  }
+
+  const supabase = await createClient();
+  const headerList = await headers();
+  const origin =
+    headerList.get("origin") ??
+    `${headerList.get("x-forwarded-proto") ?? "http"}://${headerList.get("x-forwarded-host") ?? headerList.get("host") ?? "localhost:3000"}`;
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${origin}/auth/reset`,
+  });
+
+  if (error) {
+    const normalized = error.message.toLowerCase();
+    if (normalized.includes("rate") || normalized.includes("security")) {
+      return { error: error.message, message: null };
+    }
+  }
+
+  return {
+    error: null,
+    message:
+      "If an account exists for that email, we sent a reset link. Check your inbox.",
+  };
+}
+
+export async function updatePassword(
+  _prevState: AuthState,
+  formData: FormData,
+): Promise<AuthState> {
+  if (!getSupabasePublicEnv()) {
+    return MISSING_SUPABASE;
+  }
+
+  const password = String(formData.get("password") ?? "");
+  const confirmPassword = String(formData.get("confirmPassword") ?? "");
+
+  if (!PASSWORD_PATTERN.test(password)) {
+    return {
+      error:
+        "Password must be at least 8 characters and include a letter, a number, and a special character.",
+      message: null,
+    };
+  }
+
+  if (password !== confirmPassword) {
+    return { error: "Passwords do not match.", message: null };
+  }
+
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getClaims();
+  if (!data?.claims) {
+    return {
+      error: "This reset link has expired. Request a new one.",
+      message: null,
+    };
+  }
+
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) {
+    return { error: error.message, message: null };
+  }
+
+  await supabase.auth.signOut();
+  revalidatePath("/", "layout");
+  redirect("/login?reset=1");
+}
+
 export async function logout() {
   if (!getSupabasePublicEnv()) {
     redirect("/");
