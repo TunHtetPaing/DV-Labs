@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { getSupabasePublicEnv } from "@/lib/supabase/env";
 
@@ -13,7 +13,6 @@ const HANDLED_PATHS = new Set([
 
 export default function RecoveryRedirect() {
   const pathname = usePathname();
-  const router = useRouter();
 
   useEffect(() => {
     if (!getSupabasePublicEnv() || HANDLED_PATHS.has(pathname)) {
@@ -24,8 +23,6 @@ export default function RecoveryRedirect() {
     const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
     const code = search.get("code");
     const tokenHash = search.get("token_hash");
-    const isRecovery =
-      search.get("type") === "recovery" || hash.get("type") === "recovery";
 
     if (code) {
       const next = new URL("/auth/reset", window.location.origin);
@@ -44,7 +41,15 @@ export default function RecoveryRedirect() {
       return;
     }
 
-    if (!isRecovery && !hash.get("access_token")) {
+    if (
+      pathname !== "/reset-password" &&
+      (search.get("type") === "recovery" ||
+        hash.get("type") === "recovery" ||
+        hash.has("access_token"))
+    ) {
+      window.location.replace(
+        `/reset-password${window.location.search}${window.location.hash}`,
+      );
       return;
     }
 
@@ -57,14 +62,8 @@ export default function RecoveryRedirect() {
       }
     });
 
-    void supabase.auth.getSession().then(({ data }) => {
-      if (data.session && pathname !== "/reset-password") {
-        router.replace("/reset-password");
-      }
-    });
-
     return () => subscription.unsubscribe();
-  }, [pathname, router]);
+  }, [pathname]);
 
   return null;
 }

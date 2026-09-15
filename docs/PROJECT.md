@@ -91,13 +91,12 @@ If env is missing, marketing pages still render. Login and signup return _Auth i
 - Password: at least 8 characters, including a letter, a number, and a special character.
 - Must be at least 13 years old.
 - Signup confirmation email uses `origin/auth/confirm`.
-- Password reset: `/forgot-password` emails a link to `origin/auth/reset`, which starts a session and sends the user to `/reset-password`. If the email still lands on `/` (default Supabase template puts tokens in the URL hash), `RecoveryRedirect` in the root layout sends the user to `/reset-password`. Recovery links that use `token_hash` + `type=recovery` go through `/auth/confirm` to the same page. After a successful update they are signed out and sent to `/login?reset=1`. Same password rules as signup.
+- Password reset: `/forgot-password` emails `redirectTo` `/reset-password`. If the link still opens `/` with `code`, `token_hash`, or `type=recovery`, `proxy.ts` forwards it to `/auth/reset` or `/auth/confirm`. Hash tokens (`#access_token&type=recovery`) are caught in the browser by `RecoveryRedirect` (`PASSWORD_RECOVERY`). After a successful update they are signed out and sent to `/login?reset=1`.
 
-  In Supabase → **Authentication → Email Templates → Reset password**, use this link so the server can read the token (optional if the in-app catcher is enough):
+  **Required in Supabase** (or the email keeps opening the homepage):
 
-  `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next=/reset-password`
-
-  Redirect URLs must include `http://localhost:3000/**` and `https://dv-labs.vercel.app/**`.
+  1. Redirect URLs: `https://dv-labs.vercel.app/**` and `http://localhost:3000/**`
+  2. Email Templates → Reset password: paste `supabase/recovery-email.html` (uses `token_hash` + `type=recovery`).
 
 - Session cookies are refreshed on each matched request in `proxy.ts` → `updateSession` → `getClaims()`.
 - Logout clears the session and redirects to `/`.

@@ -19,31 +19,45 @@ export default function ResetPasswordGate() {
     }
 
     const supabase = createClient();
-    const search = window.location.search;
+    const search = new URLSearchParams(window.location.search);
     const hash = window.location.hash;
+    const code = search.get("code");
+    const tokenHash = search.get("token_hash");
     const pending =
+      Boolean(code) ||
+      Boolean(tokenHash) ||
       hash.includes("access_token") ||
-      hash.includes("type=recovery") ||
-      search.includes("code=") ||
-      search.includes("token_hash=");
+      hash.includes("type=recovery");
+
+    const markReady = () => setState("ready");
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) {
-        setState("ready");
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "PASSWORD_RECOVERY" || session) {
+        markReady();
       }
     });
 
-    void supabase.auth.getSession().then(({ data }) => {
+    void (async () => {
+      if (code) {
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
+        if (!error) {
+          window.history.replaceState({}, "", "/reset-password");
+          markReady();
+          return;
+        }
+      }
+
+      const { data } = await supabase.auth.getSession();
       if (data.session) {
-        setState("ready");
+        markReady();
         return;
       }
       if (!pending) {
         setState("expired");
       }
-    });
+    })();
 
     const timeout = window.setTimeout(() => {
       setState((current) => (current === "loading" ? "expired" : current));

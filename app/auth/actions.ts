@@ -213,7 +213,7 @@ export async function requestPasswordReset(
     headerList.get("origin") ??
     `${headerList.get("x-forwarded-proto") ?? "http"}://${headerList.get("x-forwarded-host") ?? headerList.get("host") ?? "localhost:3000"}`;
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${origin}/auth/reset`,
+    redirectTo: `${origin}/reset-password`,
   });
 
   if (error) {
