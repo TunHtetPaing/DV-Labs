@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import AuthCard from "@/app/auth/auth-card";
-import ForgotPasswordForm from "@/app/forgot-password/forgot-password-form";
 import { createOptionalClient } from "@/lib/supabase/server";
 
 export default async function ForgotPasswordPage() {
@@ -17,7 +16,7 @@ export default async function ForgotPasswordPage() {
   return (
     <AuthCard
       title="Forgot password"
-      subtitle="Enter the email for your account. We will send a reset link if it is registered."
+      subtitle="This is still in development."
       footer={
         <>
           Remembered it?{" "}
@@ -30,7 +29,17 @@ export default async function ForgotPasswordPage() {
         </>
       }
     >
-      <ForgotPasswordForm />
+      <p className="text-sm text-zinc-600 dark:text-zinc-400">
+        Password reset emails are not available yet. If you already have an
+        account, log in, or{" "}
+        <Link
+          href="/signup"
+          className="font-medium text-zinc-950 underline-offset-4 hover:underline dark:text-zinc-50"
+        >
+          sign up
+        </Link>{" "}
+        if you need a new one.
+      </p>
     </AuthCard>
   );
 }

@@ -63,7 +63,7 @@ The homepage is a server component. Filters, hero video, and Three.js are client
 | `/projects/project4` | Bedroom interior (local MP4)                              |
 | `/login`             | Email + password                                          |
 | `/signup`            | Username, date of birth, email, password                  |
-| `/forgot-password`   | Request a password reset email                            |
+| `/forgot-password`   | In development (no reset emails yet)                      |
 | `/reset-password`    | Set a new password after the email link                   |
 | `/auth/callback`     | Session exchange from `?code=`                            |
 | `/auth/reset`        | Password-reset email → `/reset-password`                  |
@@ -91,12 +91,7 @@ If env is missing, marketing pages still render. Login and signup return _Auth i
 - Password: at least 8 characters, including a letter, a number, and a special character.
 - Must be at least 13 years old.
 - Signup confirmation email uses `origin/auth/confirm`.
-- Password reset: `/forgot-password` emails `redirectTo` `/reset-password`. If the link still opens `/` with `code`, `token_hash`, or `type=recovery`, `proxy.ts` forwards it to `/auth/reset` or `/auth/confirm`. Hash tokens (`#access_token&type=recovery`) are caught in the browser by `RecoveryRedirect` (`PASSWORD_RECOVERY`). After a successful update they are signed out and sent to `/login?reset=1`.
-
-  **Required in Supabase** (or the email keeps opening the homepage):
-
-  1. Redirect URLs: `https://dv-labs.vercel.app/**` and `http://localhost:3000/**`
-  2. Email Templates → Reset password: paste `supabase/recovery-email.html` (uses `token_hash` + `type=recovery`).
+- Password reset: `/forgot-password` is in development and does not send email. `/reset-password` and `/auth/reset` remain for when custom SMTP is set (Supabase locks the reset template behind SMTP). Until then, login from `/login`.
 
 - Session cookies are refreshed on each matched request in `proxy.ts` → `updateSession` → `getClaims()`.
 - Logout clears the session and redirects to `/`.
