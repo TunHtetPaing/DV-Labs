@@ -3,9 +3,14 @@
   The default ConfirmationURL opens the Site URL (homepage) and the reset form never appears.
 -->
 <h2>Reset your password</h2>
-<p>We received a request to reset your password. Follow the link below to choose a new one.</p>
 <p>
-  <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next=/reset-password">
+  We received a request to reset your password. Follow the link below to choose
+  a new one.
+</p>
+<p>
+  <a
+    href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next=/reset-password"
+  >
     Reset password
   </a>
 </p>
