@@ -137,6 +137,12 @@ export default function ServicesPage() {
 
           <nav className="flex shrink-0 items-center gap-3 sm:gap-6">
             <Link
+              href="/studio"
+              className="hidden text-xs font-semibold uppercase tracking-widest text-zinc-400 transition-colors hover:text-white sm:inline"
+            >
+              Studio
+            </Link>
+            <Link
               href="/#work"
               className="inline-flex h-9 items-center text-xs font-semibold uppercase tracking-widest text-zinc-400 transition-colors hover:text-white sm:h-auto"
             >

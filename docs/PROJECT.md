@@ -4,7 +4,7 @@ This file describes how the site is built. For clone and deploy steps, see the [
 
 ## What it is
 
-A studio portfolio: homepage with featured work and a real-time 3D viewer, four case-study pages, a services/pricing page, and Supabase email/password auth so logged-in visitors can comment on projects.
+A studio portfolio: homepage with featured work, a dedicated real-time 3D viewer page, four case-study pages, a services/pricing page, and Supabase email/password auth so logged-in visitors can comment on projects.
 
 ## Stack
 
@@ -25,6 +25,7 @@ app/
   page.tsx                 Homepage (server: session + profile name)
   featured-work.tsx        Filterable work grid; video on hover
   hero-videos.tsx          Hero MP4s (second clip delayed)
+  studio/page.tsx          Dedicated 3D viewer route
   studio-viewer.tsx        Lazy-mounts the 3D canvas
   studio-viewer-scene.tsx  R3F scene (GLB + HDRI)
   services/page.tsx        Pricing, process, FAQ
@@ -49,26 +50,27 @@ proxy.ts                   Next.js request proxy
 public/assets/             Videos, stills, GLBs, HDRI
 ```
 
-The homepage is a server component. Filters, hero video, and Three.js are client islands. Case studies load comments and the viewer name on the server, then render a client page.
+The homepage is a server component. Filters and hero video are client islands. Three.js mounts on `/studio`.
 
 ## Routes
 
-| Path                 | Purpose                                                   |
-| -------------------- | --------------------------------------------------------- |
-| `/`                  | Hero, featured work, studio viewer, capabilities, contact |
-| `/services`          | Pricing, process, FAQ                                     |
-| `/projects/project1` | ASUS product viz (YouTube embed)                          |
-| `/projects/project2` | Beverage commercial (local MP4)                           |
-| `/projects/project3` | Workspace interior (local MP4)                            |
-| `/projects/project4` | Bedroom interior (local MP4)                              |
-| `/login`             | Email + password                                          |
-| `/signup`            | Username, date of birth, email, password                  |
-| `/forgot-password`   | In development (no reset emails yet)                      |
-| `/reset-password`    | Set a new password after the email link                   |
-| `/auth/callback`     | Session exchange from `?code=`                            |
-| `/auth/reset`        | Password-reset email → `/reset-password`                  |
-| `/auth/confirm`      | Email confirm from `token_hash` + `type`                  |
-| `/error`             | Invalid or expired confirm / reset link                   |
+| Path                 | Purpose                                      |
+| -------------------- | -------------------------------------------- |
+| `/`                  | Hero, featured work, capabilities, contact   |
+| `/studio`            | Interactive 3D viewer (loads GLBs on demand) |
+| `/services`          | Pricing, process, FAQ                        |
+| `/projects/project1` | ASUS product viz (YouTube embed)             |
+| `/projects/project2` | Beverage commercial (local MP4)              |
+| `/projects/project3` | Workspace interior (local MP4)               |
+| `/projects/project4` | Bedroom interior (local MP4)                 |
+| `/login`             | Email + password                             |
+| `/signup`            | Username, date of birth, email, password     |
+| `/forgot-password`   | In development (no reset emails yet)         |
+| `/reset-password`    | Set a new password after the email link      |
+| `/auth/callback`     | Session exchange from `?code=`               |
+| `/auth/reset`        | Password-reset email → `/reset-password`     |
+| `/auth/confirm`      | Email confirm from `token_hash` + `type`     |
+| `/error`             | Invalid or expired confirm / reset link      |
 
 ## Environment
 
@@ -126,7 +128,7 @@ Tables and triggers live in the Supabase project, not in this repo.
 
 - Files: `/assets/3D_models/m1.glb`, `m2.glb`, `m3.glb`
 - Environment: `/assets/HDRI/hdr1.exr`
-- The canvas mounts after **Load 3D scene**, which preloads m1–m3 so next/previous is instant. Scrolling away only stops auto-rotate; the models stay in memory and the loading overlay does not return.
+- The canvas lives on `/studio` and mounts after **Load 3D scene**, which preloads m1–m3 so next/previous is instant. Scrolling away only stops auto-rotate; the models stay in memory and the loading overlay does not return.
 - One model at a time. Previous/next buttons and left/right arrow keys.
 - `useProgress` overlay only while a file is downloading. Each switch clones the cached GLB so going back to asset 1 or 2 still renders.
 - Mesh is fitted and sat on `y = 0` with contact shadows.
@@ -141,7 +143,7 @@ Current loading rules:
 - `proxy.ts` does **not** run on `mp4`, `webm`, `glb`, `gltf`, `exr`, `hdr`, or common images. Media hits the CDN without a Supabase session check.
 - Featured Work shows a still; a hover clip starts after a short delay on a pointer device, with a spinner on the JPG until it can play. Only one card plays at a time. Touch and Save-Data skip the clip.
 - Hero plays `v1.mp4` first and waits 16 seconds before `v4.mp4`.
-- Studio Viewer does not download GLBs until **Load 3D scene**, then preloads m1–m3. The canvas stays mounted after that so scrolling away does not reload the models.
+- Studio Viewer is on `/studio`. It does not download GLBs until **Load 3D scene**, then preloads m1–m3. The canvas stays mounted after that so scrolling away does not reload the models.
 
 Further gains require compressing assets (short 720p hover clips, Draco/gltfpack GLBs, smaller HDR).
 

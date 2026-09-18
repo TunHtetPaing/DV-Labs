@@ -2,7 +2,6 @@ import Link from "next/link";
 import { logout } from "@/app/auth/actions";
 import FeaturedWork, { type FeaturedProject } from "@/app/featured-work";
 import HeroVideos from "@/app/hero-videos";
-import StudioViewer from "@/app/studio-viewer";
 import { createOptionalClient } from "@/lib/supabase/server";
 
 // ============================================================================
@@ -176,6 +175,12 @@ export default async function Home() {
                 Work
               </Link>
               <Link
+                href="/studio"
+                className="text-xs font-semibold uppercase tracking-widest text-zinc-400 transition-colors hover:text-white hidden sm:block"
+              >
+                Studio
+              </Link>
+              <Link
                 href="/services"
                 className="text-xs font-semibold uppercase tracking-widest text-zinc-400 transition-colors hover:text-white hidden sm:block"
               >
@@ -337,45 +342,63 @@ export default async function Home() {
 
           <section
             id="studio"
-            className="w-full border-t border-zinc-800/80 bg-transparent py-24 sm:py-32"
+            className="relative w-full overflow-hidden border-t border-cyan-400/20 bg-transparent py-16 sm:py-24"
           >
-            <div className="mx-auto w-full max-w-6xl px-6">
-              <div className="mb-12">
-                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">
-                  Interactive lookdev
-                </p>
-                <h2 className="text-3xl font-black uppercase tracking-tight sm:text-5xl">
-                  Studio Viewer
-                </h2>
-                <p className="mt-4 max-w-xl text-sm leading-relaxed text-zinc-400">
-                  Drag to orbit. Use the arrows to switch assets under studio
-                  lighting.
-                </p>
-              </div>
-              <StudioViewer />
-              <div className="mt-8 flex justify-center">
-                <a
-                  href="https://sketchfab.com/Tun.Htet.Paing/models"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex h-11 items-center justify-center rounded border border-zinc-700 bg-zinc-900 px-6 text-xs font-bold uppercase tracking-wider text-white transition-all hover:border-zinc-500 hover:bg-zinc-800"
-                >
-                  More Models on Sketchfab
-                  <svg
-                    className="h-3.5 w-3.5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17 8l4 4m0 0l-4 4m4-4H3"
-                    />
-                  </svg>
-                </a>
-              </div>
+            <div className="pointer-events-none absolute inset-0">
+              <div className="absolute left-1/2 top-1/2 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-400/15 blur-[100px]" />
+              <div className="absolute bottom-0 right-0 h-64 w-64 rounded-full bg-fuchsia-500/10 blur-[80px]" />
+            </div>
+
+            <div className="relative mx-auto w-full max-w-6xl px-6">
+              <Link
+                href="/studio"
+                className="group relative block overflow-hidden rounded-3xl border border-cyan-300/40 bg-zinc-950 shadow-[0_0_0_1px_rgba(34,211,238,0.12),0_24px_80px_rgba(8,145,178,0.22)] transition duration-300 hover:border-cyan-200/70 hover:shadow-[0_0_0_1px_rgba(34,211,238,0.28),0_28px_90px_rgba(8,145,178,0.35)]"
+              >
+                <div className="relative z-10 flex flex-col justify-center px-8 py-10 sm:px-12 sm:py-14">
+                  <div className="mb-5 inline-flex w-fit items-center gap-2 rounded-full border border-cyan-400/40 bg-cyan-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-200">
+                    <span className="relative flex h-2 w-2">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-300 opacity-70" />
+                      <span className="relative inline-flex h-2 w-2 rounded-full bg-cyan-300" />
+                    </span>
+                    Live in browser
+                  </div>
+                  <h2 className="text-3xl font-black uppercase tracking-tight sm:text-5xl">
+                    Studio Viewer
+                  </h2>
+                  <p className="mt-4 max-w-md text-sm leading-relaxed text-zinc-300 sm:text-base">
+                    Drag to orbit three lookdev assets under studio lighting.
+                    The same real-time 3D we build for clients — in your
+                    browser.
+                  </p>
+                  <ul className="mt-6 flex flex-wrap gap-2 text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
+                    <li className="rounded-full border border-zinc-700 bg-zinc-900/80 px-3 py-1">
+                      3 assets
+                    </li>
+                    <li className="rounded-full border border-zinc-700 bg-zinc-900/80 px-3 py-1">
+                      Orbit + HDRI
+                    </li>
+                    <li className="rounded-full border border-zinc-700 bg-zinc-900/80 px-3 py-1">
+                      WebGL
+                    </li>
+                  </ul>
+                  <span className="mt-8 inline-flex h-12 w-fit items-center justify-center rounded bg-white px-8 text-xs font-bold uppercase tracking-wider text-zinc-950 transition group-hover:scale-105 group-hover:bg-cyan-100">
+                    Open 3D Viewer
+                    <svg
+                      className="ml-2 h-3.5 w-3.5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M17 8l4 4m0 0l-4 4m4-4H3"
+                      />
+                    </svg>
+                  </span>
+                </div>
+              </Link>
             </div>
           </section>
 

@@ -1,6 +1,6 @@
 # DV Labs
 
-Portfolio site for **DV Labs**, a 3D and motion studio. It shows case studies, services and pricing, an in-browser 3D viewer, and optional login for project comments.
+Portfolio site for **DV Labs**, a 3D and motion studio. It shows case studies, services and pricing, an in-browser 3D viewer at `/studio`, and optional login for project comments.
 
 **Live site:** [https://dv-labs.vercel.app](https://dv-labs.vercel.app)
 

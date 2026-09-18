@@ -87,7 +87,7 @@ export default function StudioViewer() {
               Load 3D scene
             </span>
             <p className="max-w-xs text-[11px] leading-relaxed text-zinc-500">
-              Models load on demand so the rest of the page stays fast.
+              Models load here so the homepage stays fast.
             </p>
           </button>
         )}
