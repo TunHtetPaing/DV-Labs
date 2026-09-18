@@ -128,7 +128,7 @@ Tables and triggers live in the Supabase project, not in this repo.
 - Environment: `/assets/HDRI/hdr1.exr`
 - The canvas mounts after **Load 3D scene**. Scrolling away only stops auto-rotate; the model stays in memory and the loading overlay does not return.
 - One model at a time. Previous/next buttons and left/right arrow keys.
-- `useProgress` overlay while GLB/HDRI load.
+- `useProgress` overlay only while a file is downloading. Each switch clones the cached GLB so going back to asset 1 or 2 still renders.
 - Mesh is fitted and sat on `y = 0` with contact shadows.
 - Sketchfab: [https://sketchfab.com/Tun.Htet.Paing/models](https://sketchfab.com/Tun.Htet.Paing/models)
 

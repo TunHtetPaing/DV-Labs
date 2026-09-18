@@ -8,11 +8,12 @@ import {
   useProgress,
 } from "@react-three/drei";
 import { Canvas, useThree } from "@react-three/fiber";
-import { Suspense, useEffect, useLayoutEffect, useState } from "react";
+import { Suspense, useLayoutEffect, useMemo } from "react";
 import { Box3, Vector3 } from "three";
 
 function FittedModel({ url }: { url: string }) {
-  const { scene } = useGLTF(url);
+  const gltf = useGLTF(url);
+  const scene = useMemo(() => gltf.scene.clone(true), [gltf.scene]);
   const { camera, controls } = useThree();
 
   useLayoutEffect(() => {
@@ -44,21 +45,10 @@ function FittedModel({ url }: { url: string }) {
   return <primitive object={scene} />;
 }
 
-function SceneLoader({ url }: { url: string }) {
+function SceneLoader() {
   const { active, progress } = useProgress();
-  const [readyUrl, setReadyUrl] = useState<string | null>(null);
 
-  useEffect(() => {
-    setReadyUrl(null);
-  }, [url]);
-
-  useEffect(() => {
-    if (!active && progress === 100) {
-      setReadyUrl(url);
-    }
-  }, [active, progress, url]);
-
-  if (readyUrl === url) {
+  if (!active) {
     return null;
   }
 
@@ -89,7 +79,7 @@ export default function StudioViewerScene({
 }) {
   return (
     <div className="relative h-full w-full">
-      <SceneLoader url={url} />
+      <SceneLoader />
       <Canvas
         shadows
         frameloop="always"
