@@ -24,7 +24,7 @@ Next.js 16 uses `proxy.ts` at the repo root instead of `middleware.ts`. Session 
 app/
   page.tsx                 Homepage (server: session + profile name)
   featured-work.tsx        Filterable work grid; video on hover
-  hero-videos.tsx          Hero MP4s (second clip delayed)
+  hero-videos.tsx          Hero MP4s (alternate when each clip ends)
   studio/page.tsx          Dedicated 3D viewer route
   studio-viewer.tsx        Lazy-mounts the 3D canvas
   studio-viewer-scene.tsx  R3F scene (GLB + HDRI)
@@ -142,7 +142,7 @@ Current loading rules:
 
 - `proxy.ts` does **not** run on `mp4`, `webm`, `glb`, `gltf`, `exr`, `hdr`, or common images. Media hits the CDN without a Supabase session check.
 - Featured Work shows a still; a hover clip starts after a short delay on a pointer device, with a spinner on the JPG until it can play. Only one card plays at a time. Touch and Save-Data skip the clip.
-- Hero plays `v1.mp4` first and waits 16 seconds before `v4.mp4`.
+- Hero plays `v1.mp4` then `v4.mp4`, switching when each clip ends (not a fixed timer). Pauses when scrolled off-screen.
 - Studio Viewer is on `/studio`. It does not download GLBs until **Load 3D scene**, then preloads m1–m3. The canvas stays mounted after that so scrolling away does not reload the models.
 
 Further gains require compressing assets (short 720p hover clips, Draco/gltfpack GLBs, smaller HDR).

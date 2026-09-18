@@ -38,18 +38,6 @@ export default function HeroVideos() {
   }, []);
 
   useEffect(() => {
-    if (!inView || clip !== 0) {
-      return;
-    }
-
-    const id = window.setTimeout(() => {
-      setClip(1);
-    }, 16000);
-
-    return () => window.clearTimeout(id);
-  }, [inView, clip]);
-
-  useEffect(() => {
     const video = videoRef.current;
     if (!video) {
       return;
@@ -70,8 +58,8 @@ export default function HeroVideos() {
         ref={videoRef}
         muted
         playsInline
-        loop
         preload="none"
+        onEnded={() => setClip((current) => (current === 0 ? 1 : 0))}
         className="absolute inset-0 h-full w-full object-cover scale-105 filter brightness-75"
       >
         <source src={CLIPS[clip]} type="video/mp4" />
