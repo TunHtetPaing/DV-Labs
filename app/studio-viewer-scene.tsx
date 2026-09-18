@@ -11,6 +11,14 @@ import { Canvas, useThree } from "@react-three/fiber";
 import { Suspense, useLayoutEffect, useMemo } from "react";
 import { Box3, Vector3 } from "three";
 
+const MODEL_URLS = [
+  "/assets/3D_models/m1.glb",
+  "/assets/3D_models/m2.glb",
+  "/assets/3D_models/m3.glb",
+] as const;
+
+MODEL_URLS.forEach((url) => useGLTF.preload(url));
+
 function FittedModel({ url }: { url: string }) {
   const gltf = useGLTF(url);
   const scene = useMemo(() => gltf.scene.clone(true), [gltf.scene]);
