@@ -10,11 +10,13 @@ Technical detail (routes, auth, database, 3D, deploy): [docs/PROJECT.md](docs/PR
 
 ## Stack
 
-- Next.js 16 (App Router) and React 19
+- Next.js 16 (App Router), React 19, TypeScript
 - Tailwind CSS 4
 - Supabase Auth and Postgres
 - Three.js / React Three Fiber / Drei
 - Hosted on Vercel
+
+3D viewer: [https://dv-labs.vercel.app/studio](https://dv-labs.vercel.app/studio)
 
 ## Local setup
 
