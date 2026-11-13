@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import {
   fallbackUsernameSuggestions,
   isUsernameTakenError,
+  PASSWORD_PATTERN,
   signupFieldError,
   USERNAME_PATTERN,
 } from "@/app/auth/rules";
