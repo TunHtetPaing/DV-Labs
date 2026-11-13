@@ -1,35 +1,16 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import {
+  commentBodyError,
+  nestComments,
+  PROJECT_PATHS,
+  type Comment,
+  type CommentRow,
+} from "@/app/projects/nest-comments";
 import { createOptionalClient } from "@/lib/supabase/server";
 
-export type Reply = {
-  id: string;
-  name: string;
-  text: string;
-};
-
-export type Comment = {
-  id: string;
-  name: string;
-  text: string;
-  replies: Reply[];
-};
-
-type CommentRow = {
-  id: string;
-  parent_id: string | null;
-  username: string;
-  body: string;
-  created_at: string;
-};
-
-const PROJECT_PATHS: Record<string, string> = {
-  project1: "/projects/project1",
-  project2: "/projects/project2",
-  project3: "/projects/project3",
-  project4: "/projects/project4",
-};
+export type { Comment, Reply } from "@/app/projects/nest-comments";
 
 export async function getProjectComments(
   projectSlug: string,
@@ -62,14 +43,12 @@ export async function postProjectComment(input: {
     return { error: "Unknown project." };
   }
 
-  const body = input.body.trim();
-  if (!body) {
-    return { error: "Write a comment before posting." };
+  const bodyError = commentBodyError(input.body);
+  if (bodyError) {
+    return { error: bodyError };
   }
 
-  if (body.length > 2000) {
-    return { error: "Comments must be 2000 characters or fewer." };
-  }
+  const body = input.body.trim();
 
   const supabase = await createOptionalClient();
   if (!supabase) {
@@ -94,34 +73,4 @@ export async function postProjectComment(input: {
 
   revalidatePath(projectPath);
   return { error: null };
-}
-
-function nestComments(rows: CommentRow[]): Comment[] {
-  const comments: Comment[] = [];
-  const repliesByParent = new Map<string, Reply[]>();
-
-  for (const row of rows) {
-    if (row.parent_id) {
-      const replies = repliesByParent.get(row.parent_id) ?? [];
-      replies.push({
-        id: row.id,
-        name: row.username,
-        text: row.body,
-      });
-      repliesByParent.set(row.parent_id, replies);
-      continue;
-    }
-
-    comments.push({
-      id: row.id,
-      name: row.username,
-      text: row.body,
-      replies: [],
-    });
-  }
-
-  return comments.map((comment) => ({
-    ...comment,
-    replies: repliesByParent.get(comment.id) ?? [],
-  }));
 }

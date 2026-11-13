@@ -2,29 +2,24 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useState } from "react";
 import { postProjectComment, type Comment } from "@/app/projects/comments";
 
 export default function ProjectComments({
   projectSlug,
   username,
-  comments: initialComments,
+  comments,
 }: {
   projectSlug: string;
   username: string | null;
   comments: Comment[];
 }) {
-  const [comments, setComments] = useState(initialComments);
   const [commentText, setCommentText] = useState("");
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const router = useRouter();
-
-  useEffect(() => {
-    setComments(initialComments);
-  }, [initialComments]);
 
   async function submitComment(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

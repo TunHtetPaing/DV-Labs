@@ -44,6 +44,7 @@ app/
     reset/route.ts         Recovery code → `/reset-password`
     paths.ts               Safe post-auth paths
   projects/
+    nest-comments.ts       Nest threads + comment body rules
     comments.ts            Load / post comments
     viewer.ts              Current username
     project-comments.tsx   Comment UI
@@ -186,6 +187,21 @@ Contact in the UI: `contact.dvlabs@gmail.com`.
 3. After any env change: **Redeploy**.
 4. Supabase Site URL + Redirect URLs include `https://dv-labs.vercel.app`.
 5. Share [https://dv-labs.vercel.app](https://dv-labs.vercel.app).
+
+## Testing
+
+Industry-style gates, not 100% coverage of Three.js or hover video.
+
+| Command            | What it is                                                           |
+| ------------------ | -------------------------------------------------------------------- |
+| `npm test`         | Unit tests (Vitest) for auth rules, `safeNextPath`, comment nesting  |
+| `npm run test:e2e` | Playwright smoke tests: `/`, `/studio`, `/login`, `/forgot-password` |
+| `npm run lint`     | ESLint                                                               |
+| `npm run build`    | Production build                                                     |
+
+CI: `.github/workflows/ci.yml` runs lint, unit tests, build, then Playwright (Chromium) on push/PR to `main`.
+
+Helpers under test live in `app/auth/rules.ts`, `app/auth/paths.ts`, and `app/projects/nest-comments.ts` so they can run without Next server actions or a browser.
 
 ## Known gaps
 

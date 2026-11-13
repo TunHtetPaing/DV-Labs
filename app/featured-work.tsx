@@ -69,7 +69,6 @@ function ProjectCard({
 
   useEffect(() => {
     if (!previewing) {
-      setReady(false);
       return;
     }
 
@@ -112,6 +111,7 @@ function ProjectCard({
       }}
       onMouseLeave={() => {
         window.clearTimeout(hoverTimer.current);
+        setReady(false);
         onPreview(null);
         const video = videoRef.current;
         if (video) {

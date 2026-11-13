@@ -3,6 +3,12 @@
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import {
+  fallbackUsernameSuggestions,
+  isUsernameTakenError,
+  signupFieldError,
+  USERNAME_PATTERN,
+} from "@/app/auth/rules";
 import { getSupabasePublicEnv } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 
@@ -44,32 +50,6 @@ export async function login(
   redirect("/");
 }
 
-const USERNAME_PATTERN = /^[A-Za-z][A-Za-z0-9_]{2,19}$/;
-const PASSWORD_PATTERN = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
-
-function isUsernameTakenError(message: string) {
-  const normalized = message.toLowerCase();
-  return (
-    normalized.includes("duplicate") ||
-    normalized.includes("already exists") ||
-    normalized.includes("profiles_username_lower_idx") ||
-    normalized.includes("database error saving new user")
-  );
-}
-
-function fallbackUsernameSuggestions(username: string) {
-  const suggestions: string[] = [];
-
-  for (let n = 1; n <= 99 && suggestions.length < 3; n += 1) {
-    const candidate = `${username}${n}`;
-    if (USERNAME_PATTERN.test(candidate)) {
-      suggestions.push(candidate);
-    }
-  }
-
-  return suggestions;
-}
-
 async function suggestAvailableUsernames(username: string) {
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("suggest_available_usernames", {
@@ -83,15 +63,6 @@ async function suggestAvailableUsernames(username: string) {
   return data.filter(
     (value): value is string =>
       typeof value === "string" && USERNAME_PATTERN.test(value),
-  );
-}
-
-function yearsAgoUtc(years: number) {
-  const today = new Date();
-  return Date.UTC(
-    today.getUTCFullYear() - years,
-    today.getUTCMonth(),
-    today.getUTCDate(),
   );
 }
 
@@ -111,44 +82,15 @@ export async function signup(
   const password = String(formData.get("password") ?? "");
   const confirmPassword = String(formData.get("confirmPassword") ?? "");
 
-  if (!username || !dateOfBirth || !email || !password) {
-    return {
-      error: "Username, date of birth, email, and password are required.",
-      message: null,
-    };
-  }
-
-  if (!USERNAME_PATTERN.test(username)) {
-    return {
-      error:
-        "Username must be 3–20 characters, start with a letter, and contain only letters, numbers, and underscores.",
-      message: null,
-    };
-  }
-
-  const dateOfBirthMs = Date.parse(`${dateOfBirth}T00:00:00.000Z`);
-  if (Number.isNaN(dateOfBirthMs)) {
-    return { error: "Enter a valid date of birth.", message: null };
-  }
-
-  if (dateOfBirthMs > yearsAgoUtc(13)) {
-    return { error: "You must be at least 13 years old.", message: null };
-  }
-
-  if (dateOfBirthMs < yearsAgoUtc(120)) {
-    return { error: "Enter a valid date of birth.", message: null };
-  }
-
-  if (!PASSWORD_PATTERN.test(password)) {
-    return {
-      error:
-        "Password must be at least 8 characters and include a letter, a number, and a special character.",
-      message: null,
-    };
-  }
-
-  if (password !== confirmPassword) {
-    return { error: "Passwords do not match.", message: null };
+  const fieldError = signupFieldError({
+    username,
+    dateOfBirth,
+    email,
+    password,
+    confirmPassword,
+  });
+  if (fieldError) {
+    return { error: fieldError, message: null };
   }
 
   const origin = (await headers()).get("origin") ?? "http://localhost:3000";

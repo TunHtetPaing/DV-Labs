@@ -477,7 +477,7 @@ export default async function Home() {
                 Have a Project in Mind?
               </p>
               <h2 className="text-4xl font-black uppercase tracking-tight sm:text-6xl lg:text-7xl">
-                Let's Build Something <br />
+                Let&apos;s Build Something <br />
                 <span className="bg-gradient-to-r from-white via-zinc-300 to-zinc-500 bg-clip-text text-transparent">
                   Extraordinary.
                 </span>

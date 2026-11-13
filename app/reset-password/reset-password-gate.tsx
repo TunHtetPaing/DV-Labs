@@ -8,13 +8,12 @@ import { createClient } from "@/lib/supabase/client";
 import { getSupabasePublicEnv } from "@/lib/supabase/env";
 
 export default function ResetPasswordGate() {
-  const [state, setState] = useState<"loading" | "ready" | "expired">(
-    "loading",
+  const [state, setState] = useState<"loading" | "ready" | "expired">(() =>
+    getSupabasePublicEnv() ? "loading" : "expired",
   );
 
   useEffect(() => {
     if (!getSupabasePublicEnv()) {
-      setState("expired");
       return;
     }
 

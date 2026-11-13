@@ -39,12 +39,20 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-| Script          | Purpose                    |
-| --------------- | -------------------------- |
-| `npm run dev`   | Local development          |
-| `npm run build` | Production build           |
-| `npm run start` | Serve the production build |
-| `npm run lint`  | ESLint                     |
+| Script             | Purpose                    |
+| ------------------ | -------------------------- |
+| `npm run dev`      | Local development          |
+| `npm run build`    | Production build           |
+| `npm run start`    | Serve the production build |
+| `npm run lint`     | ESLint                     |
+| `npm test`         | Unit tests (Vitest)        |
+| `npm run test:e2e` | Browser smoke tests        |
+
+First time only, download Playwright’s browser:
+
+```bash
+npx playwright install chromium
+```
 
 Do not commit `.env.local`.
 
